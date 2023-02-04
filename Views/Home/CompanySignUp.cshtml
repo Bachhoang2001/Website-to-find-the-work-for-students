@@ -1,0 +1,97 @@
+﻿@model PBL3.Models.Home.CompanySignUpModel
+
+<h4>SignUp</h4>
+<hr />
+<div class="row justify-content-md-center">
+    <div class="col-md-9" style="margin-top:30px;">
+        <div class="card">
+            <div class="card-header">
+                Chào mừng doanh nghiệp mới, nhập đầy đủ thông tin để xác nhận tạo tài khoản
+            </div>
+            <div class="card-body" style="padding-bottom: 50px;">
+                @using (Html.BeginForm("CompanySignUp", "Home", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="form-group" id="CompanyInput">
+                        @Html.LabelFor(m => m.Company.CompanyName)<p class="text-danger" style="display:contents"> *</p>
+                        @Html.TextBoxFor(m => m.Company.CompanyName, new { @class = "form-control", @placeholder = "Ví dụ: Google", @id = "InputCompanyName", @autocomplete = "off", @required = "required" })
+                        @Html.ValidationMessageFor(m => m.Company.CompanyName, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Company.Website)<p class="text-danger" style="display:contents"> *</p>
+                        @Html.TextBoxFor(m => m.Company.Website, new { @class = "form-control", @placeholder = "Nhập URL đầy đủ. Ví dụ: https://companyA.com", @autocomplete = "off", @required = "required" })
+                        @Html.ValidationMessageFor(m => m.Company.Website, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ListCityId)<p class="text-danger" style="display:contents"> *</p>
+                        <div>
+                            @Html.ListBoxFor(m => m.ListCityId, new SelectList(Model.GetAllCity, "Id", "CityName"), new { style = "width:300px" })
+                        </div>
+                        @Html.ValidationMessageFor(m => m.ListCityId, "", new { @class = "text-danger" })
+                    </div>
+                    <div style="display: flex;justify-content: space-between;">
+                        <div class="form-group" style="width: 45%;">
+                            @Html.LabelFor(m => m.User.SubName)<p class="text-danger" style="display:contents"> *</p>
+                            @Html.TextBoxFor(m => m.User.SubName, new { @class = "form-control", @placeholder = "Ví dụ: Nguyễn", @autocomplete = "off", @required = "required" })
+                            @Html.ValidationMessageFor(m => m.User.SubName, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group" style="width: 45%;">
+                            @Html.LabelFor(m => m.User.GivenName)<p class="text-danger" style="display:contents"> *</p>
+                            @Html.TextBoxFor(m => m.User.GivenName, new { @class = "form-control", @placeholder = "Ví dụ: Văn A", @autocomplete = "off", @required = "required" })
+                            @Html.ValidationMessageFor(m => m.User.GivenName, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div style="display: flex;justify-content: space-between;">
+                        <div class="form-group" style="width: 45%;">
+                            @Html.LabelFor(m => m.User.Email)<p class="text-danger" style="display:contents"> *</p>
+                            @Html.TextBoxFor(m => m.User.Email, new { @class = "form-control", @placeholder = "Ví dụ: duters@gmail.com", @autocomplete = "off", @required = "required" })
+                            <p class="text-danger" style="display:contents">@ViewBag.EmailErrorMessages</p>
+                            @Html.ValidationMessageFor(m => m.User.Email, "", new { @class = "text-danger" })
+                        </div>
+                        <div class="form-group" style="width: 45%;">
+                            @Html.LabelFor(m => m.User.Phone)<p class="text-danger" style="display:contents"> *</p>
+                            @Html.TextBoxFor(m => m.User.Phone, new { @class = "form-control", @autocomplete = "off", @required = "required" })
+                            @Html.ValidationMessageFor(m => m.User.Phone, "", new { @class = "text-danger" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Password)<p class="text-danger" style="display:contents"> *</p>
+                        <div style="display: -webkit-box">
+                            @Html.PasswordFor(m => m.Password, new { @class = "form-control", @type = "password", @autocomplete = "off", @required = "required", @id = "myInput" })
+                            <i class='fa-solid fa-eye-slash icon' onclick="myFunction()" id="eye" style="margin-left:-50px;margin-top:10px;"></i>
+                        </div>
+                        @Html.ValidationMessageFor(m => m.Password, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.PasswordCheck)<p class="text-danger" style="display:contents"> *</p>
+                        @Html.PasswordFor(m => m.PasswordCheck, new { @class = "form-control", @type = "password", @autocomplete = "off", @required = "required" })
+                        <p class="text-danger" style="display:contents">@ViewBag.PasswordErrorMessages</p>
+                        @Html.ValidationMessageFor(m => m.PasswordCheck, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" name="submit" class="btn btn-primary" value="Gửi" style="width:100%;" />
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+<script>
+    function myFunction() {
+        var x = document.getElementById("myInput");
+        if (x.type === "password") {
+            x.type = "text";
+        } else {
+            x.type = "password";
+        }
+        var y = document.getElementById("eye");
+        if (y.className === "fa-solid fa-eye-slash icon") {
+            y.className = "fa-solid fa-eye icon";
+        } else {
+            y.className = "fa-solid fa-eye-slash icon";
+        }
+    }
+</script>

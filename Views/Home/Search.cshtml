@@ -1,0 +1,246 @@
+﻿@model PBL3.Models.Home.IndexModel
+@{
+    List<Faculty> ListFaculties = ViewBag.ListFaculties;
+    List<City> ListCities = ViewBag.ListCities;
+}
+@inject IHttpContextAccessor _httpContextAccessor
+@using (Html.BeginForm("Search", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="search" style="display: flex;justify-content: center;padding-bottom: 10px;padding-top: 80px;">
+        @Html.AntiForgeryToken()
+        <div style="display:none;">
+            @Html.TextBoxFor(m => m.CurrentPage, new {style = "padding-left: 30px;width:100%;"})
+        </div>
+        <form class="form-inline">
+            <div style="width: 40%;text-align: center;font-weight: 700;padding: 0px 10px;display:inherit;">
+                @Html.TextBoxFor(m => m.CheckString, new { @placeholder = "Tìm kiếm ở đây...", @class = "search-input", style = "padding-left: 30px;width:100%;", type = "search" })
+                <i class='fa-solid fa-magnifying-glass icon' style="padding-left:5px;position:absolute; padding-top:10px;"></i>
+            </div>
+            <div style="width: 20%;text-align: center;font-weight: 700;padding: 0px 10px;">
+                @Html.DropDownListFor(m => m.SelectedFaculty, new SelectList(ListFaculties, "Id", "FacultyName"), new { @class = "form-select mx-2" })
+            </div>
+            <div style="width: 20%;text-align: center;font-weight: 700;padding: 0px 10px;">
+                @Html.DropDownListFor(m => m.CheckCityId, new SelectList(ListCities, "Id", "CityName"), new { @class = "form-select mx-2" })
+            </div>
+            <button class="btn btn-warning my-2 my-sm-0" type="submit" style="height:40px;">Tìm kiếm</button>
+        </form>
+
+    </div>
+    <div class='company-page__container' style="grid-template-columns: 600px 1fr;">
+        <div class='company-page__left mt-1' style="overflow: hidden;position: sticky;height: calc(100vh - 60px); top:60px;">
+            <div class='panel panel-default jobs' style="overflow: scroll;height: 100%;">
+                <div class='panel-heading'>
+                    <h2 class='panel-title'>Có @Model.Posts.Count() bài đăng được tìm thấy.</h2>
+                </div>
+                <div class='panel-body' id="myTable" style="padding-top: 0px;">
+                    @{ string str = "";
+                        foreach (var post in Model.Posts.Skip((Model.CurrentPage - 1) * Model.MaxPostPerPage).Take(Model.MaxPostPerPage).ToList())
+                        {
+                            <div class="job" id="job">
+                                @if (post.Id == Model.SelectedPost) str = "darkturquoise";
+                                else str = "white";
+                                <div class='job_content' style="background-color: @str;padding: 7px 0px;border-radius:10px;">
+                                    <div class='logo'>
+                                        <div class='logo-wrapper job-details-link-wrapper'>
+                                            <a target="_blank" asp-controller="Company" asp-action="Index" asp-route-id="@post.CompanyId">
+                                                <picture>
+                                                    <img alt="@post.Company.CompanyName" src="~/images/companies/@post.Company.IdNavigation.AvtLocation" width="65">
+                                                </picture>
+                                            </a>
+                                        </div>
+                                        <div class='clearfix'></div>
+                                    </div>
+                                    <div class='job__description'>
+                                        <div class='job__body'>
+                                            <div class='details'>
+                                                <h3 class='title job-details-link-wrapper'>
+                                                    <a target="_blank" asp-controller="Company" asp-action="Post" asp-route-id="@post.Id" id="jobTitle">@post.Title</a>
+                                                </h3>
+                                                <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                                    <i class="fa fa-money-check-dollar"></i>
+                                                    @if (_httpContextAccessor.HttpContext.Session.GetInt32(CommonConstraints.USER_ROLEID) != null)
+                                                    {
+                                                        if ((bool)post.IsDollar && post.MaxSalary != 0)
+                                                        {
+                                                            <div class='svg-icon__text'>$@post.MinSalary-@post.MaxSalary</div>
+                                                        }
+                                                        else if (!(bool)post.IsDollar && post.MaxSalary != 0)
+                                                        {
+                                                            <div class='svg-icon__text'>@post.MinSalary-@post.MaxSalary VNĐ</div>
+                                                        }
+                                                        else if (post.MaxSalary == 0)
+                                                        {
+                                                            <div class='svg-icon__text'>Mức lương hấp dẫn</div>
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        <a asp-controller="Home" asp-action="Login" style="color:#000;">
+                                                            <div class='svg-icon__text'>Đăng nhập để xem mức lương</div>
+                                                        </a>
+                                                    }
+                                                </div>
+                                                <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                                    <i class="fa fa-location"></i>
+                                                    @{str = "| ";
+                                                        foreach (var item in post.Skillposts)
+                                                        {
+                                                            str += item.Skill.SkillName + " | ";
+
+                                                        }
+                                                        <div class='svg-icon__text'>@str</div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class='city_and_posted_date d-none d-sm-flex'>
+                                        <div class='city'>
+                                            <div class='address'>
+                                                @{ str = "| ";
+                                                    foreach (var item in post.CityPosts)
+                                                    {
+                                                        str += item.City.CityName + " | ";
+
+                                                    }
+                                                    <div class='text'>@str</div>
+                                                }
+
+                                            </div>
+                                        </div>
+                                        <div class='distance-time-job-posted'>
+
+                                            @{
+                                                TimeSpan ts = DateTime.Now - post.Createdate;
+                                                int Total = (int)ts.TotalMinutes;
+                                                str = "";
+                                                if (Total > 2592000)
+                                                {
+                                                    <span class='distance-time highlight'>
+                                                        @post.Createdate.ToString("HH:mm tt dd/MM/yyyy")
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    int d = Total / 1440; Total %= 1440;
+                                                    int h = Total / 60; Total %= 60;
+                                                    int m = Total;
+                                                    if (d > 0) str += d + "d trước";
+                                                    else if (h > 0) str += h + "h trước";
+                                                    else str += m + "p trước";
+                                                    <span class='distance-time highlight'>
+                                                        @str
+                                                    </span>
+                                                }
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:0px;width:5%;">
+                                        <a type="submit" name="submit" class="btn btn-primary" style="width: 100%;float: left;padding-left: 1px;text-align: center;" asp-controller="Home" asp-action="Search" asp-route-id="@post.Id" asp-route-page="@Model.CurrentPage">➤</a>
+                                        @*<input type="submit" name="submit" class="btn btn-primary" style="width: 100%;float: left;padding-left: 1px;text-align: center;" asp-controller="Home" asp-action="Search" asp-route-id="@post.Id" value="➤" />*@
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <div style="display: flex;justify-content: center;">
+                    @{
+                        int TotalPage = Model.Posts.Count() / Model.MaxPostPerPage;
+                        if (Model.Posts.Count() % Model.MaxPostPerPage > 0) TotalPage += 1;
+                        for (int i = 0; i < TotalPage; i++)
+                        {
+                            if (i + 1 == Model.CurrentPage)
+                            {
+                                <a style="-webkit-text-stroke: thick;">[@(i+1)]</a>
+                            }
+                            else
+                            {
+                                <a type="submit" style="-webkit-text-stroke: medium;" asp-controller="Home" asp-action="Search" asp-route-page="@(i+1)">[@(i+1)]</a>
+                            }
+                        }
+                    }
+                </div>
+            </div>
+
+        </div>
+
+        @foreach (var post in Model.Posts)
+        {
+            if (post.Id == Model.SelectedPost)
+            {
+                <div class='company-page__right mt-1'>
+                    <div class='job-details' style="background-color: white;padding: 0 10px;">
+                        <div class='job-details__header'>
+                            <h1 class='job-details__title'>@post.Title</h1>
+                            <div class='job-details__apply'>
+                                <div class="form-group" style="margin-bottom:0px;width:50%;">
+                                    @if (_httpContextAccessor.HttpContext.Session.GetInt32(CommonConstraints.USER_ROLEID) == 3)
+                                    {
+                                        <a class="btn btn-primary" style="width: 100%;position: absolute;margin-top: -10px;padding-left: 1px;text-align: center;" asp-action="SubmitPost" asp-controller="Student" asp-route-id="@post.Id">Ứng tuyển ngay</a>
+                                    }
+                                    else if (_httpContextAccessor.HttpContext.Session.GetInt32(CommonConstraints.USER_ROLEID) == null)
+                                    {
+                                        <a class="btn btn-primary" style="width: 100%;position: absolute;margin-top: -10px;padding-left: 1px;text-align: center;" asp-action="Login" asp-controller="Home">Ứng tuyển ngay</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                        <div style="padding:20px">
+                            <div class='job__description'>
+                                <div class='job__body'>
+                                    <div class='details'>
+                                        <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                            <i class="fa fa-money-check-dollar"></i>
+                                            @if ((bool)post.IsDollar && post.MaxSalary != 0)
+                                            {
+                                                <div class='svg-icon__text'>@String.Format("{0:C0}", post.MinSalary)-@String.Format("{0:C0}", post.MaxSalary)</div>
+                                            }
+                                            else if (!(bool)post.IsDollar && post.MaxSalary != 0)
+                                            {
+                                                <div class='svg-icon__text'>@String.Format("{0:N0}", post.MinSalary)-@String.Format("{0:N0}", post.MaxSalary) VNĐ</div>
+                                            }
+                                            else if (post.MaxSalary == 0)
+                                            {
+                                                <div class='svg-icon__text'>Mức lương hấp dẫn</div>
+                                            }
+                                        </div>
+                                        <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                            <i class="fa fa-location"></i>
+                                            @{ str = "| ";
+                                                foreach (var item in post.Skillposts)
+                                                {
+                                                    str += item.Skill.SkillName + " | ";
+                                                }
+                                                <div class='svg-icon__text'>@str</div>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class='city_and_posted_date d-none d-sm-flex'>
+                                <div class='city'>
+                                    <div class='address'>
+                                        @{ str = "| ";
+                                            foreach (var item in post.CityPosts)
+                                            {
+                                                str += item.City.CityName + " | ";
+
+                                            }
+                                            <div class='text'>@str</div>
+                                        }
+
+                                    </div>
+                                </div>
+                            </div>
+                            <h2 class='job-details__second-title'>Mô tả công việc</h2>
+                            <div class='job-details__paragraph'>
+                                <p>@post.Content</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+}

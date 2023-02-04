@@ -1,0 +1,127 @@
+﻿@model IEnumerable<PBL3.Models.Admin.StudentProfileModel>
+@{
+    int State = ViewBag.State == null ? 0 : (int)ViewBag.State;
+}
+
+<div class='company-content' style="max-width:100%;">
+    <div class='company-page text-break' style="padding-bottom: 0px;">
+        <div class='headers' style="min-height: 120px;padding-top: 40px;">
+            <ul class='nav bg-white pt-1 mt-3' style="border-radius: 3px;">
+                <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                    <a data-controller="utm-tracking" class="nav-link me-3 active" asp-controller="Admin" asp-action="StudentAccountProfileManager" style="-webkit-text-stroke-width:thin; color:black;">Quản lí tài khoản</a>
+                </li>
+                <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                    <a data-controller="utm-tracking" class="nav-link me-3 active" style="border-bottom: solid;-webkit-text-stroke-width: medium;border-color: cornflowerblue;">Tạo tài khoản sinh viên</a>
+                </li>
+            </ul>
+        </div>
+        @if (State == 1)
+        {
+            <div class="alert alert-primary" style="margin-bottom:0px;">Thêm tài khoản thành công.</div>
+        }
+        else if (State == 2)
+        {
+            <div class="alert alert-primary" style="color:red;margin-bottom:0px;">Đã xảy ra lỗi trong khi lưu</div>
+        }
+        else if (State == 3)
+        {
+            <div class="alert alert-primary" style="color:red;margin-bottom:0px;">Thông tin sinh viên không hợp lệ, vui lòng chỉnh sửa lại.</div>
+        }
+        else if (State == 4)
+        {
+            <div class="alert alert-primary" style="margin-bottom:0px;">Tải file thành công, chọn xác nhận để tiếp tục.</div>
+        }
+        else if (State == 5)
+        {
+            <div class="alert alert-primary" style="color:red;margin-bottom:0px;">File không hợp lệ!</div>
+        }
+        else
+        {
+            <div class="alert alert-primary" style="color:red;margin-bottom:0px;">Chỉ tải lên file .xlsx</div>
+        }
+
+        <div class="post-filter" style="background-color: white;padding:10px;display: flex;justify-content: space-between;">
+            <form asp-controller="Admin" asp-action="CreateStudentAccount" method="post" enctype="multipart/form-data">
+                <input type="file" name="file" />
+                <p class="text-danger" style="display:contents">* @ViewBag.FileError</p>
+                <hr />
+                <button type="submit" class="button">Tải lên</button>
+            </form>
+            <p>File excel tải lên phải phù hợp với file mẫu: Tải xuống file mẫu <a href="~/files/Mau-Excel-SinhVien.xlsx">Tại đây</a></p><br />
+            <div style="display:grid;">
+                @if (Model.Count() > 0 && State != 3)
+                {
+                    <a class="button ibutton full-width ibutton-red" asp-controller="Admin" asp-action="ConfirmCreateStudentAccount" asp-route-filename="@ViewBag.FileName">Xác nhận</a>
+                }
+            </div>
+        </div>
+        <div class='company-page__container' style="grid-template-columns:1fr;">
+            <div class='company-page__left mt-1' style="overflow: hidden;position: sticky;height: calc(100vh - 60px); top:60px;">
+                <div class='panel panel-default jobs' style="overflow: scroll;height: 100%;">
+                    @if (Model.Count() > 0)
+                    {
+                        <table cellpadding="3" cellspacing="0" border="1" style="width:100%;">
+                            <tr>
+                                <td>STT</td>
+                                <td>MSSV</td>
+                                <td>Email</td>
+                                <td>Mật khẩu</td>
+                                <td>Họ</td>
+                                <td>Tên</td>
+                                <td>Ngày sinh</td>
+                                <td>Khoa</td>
+                                <td>Thành phố</td>
+                                <td>Số điện thoại</td>
+                                <td>Giới tính</td>
+                            </tr>
+                            @foreach (var student in Model)
+                            {
+                                <tr>
+                                    <td>@student.STT</td>
+                                    @if (student.MSSV == "MSSV đã tồn tại")
+                                    {
+                                        <td style="color:red;">@student.MSSV</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@student.MSSV</td>
+                                    }
+                                    @if (student.Email == "Email đã tồn tại")
+                                    {
+                                        <td style="color:red;">@student.Email</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@student.Email</td>
+                                    }
+                                    <td>@student.Password</td>
+                                    <td>@student.SurName</td>
+                                    <td>@student.GivenName</td>
+                                    <td>@student.DOB</td>
+                                    @if (student.FacultyName == "Không tồn tại")
+                                    {
+                                        <td style="color:red;">@student.FacultyName</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@student.FacultyName</td>
+                                    }
+                                    @if (student.CityName == "Không tồn tại")
+                                    {
+                                        <td style="color:red;">@student.CityName</td>
+                                    }
+                                    else
+                                    {
+                                        <td>@student.CityName</td>
+                                    }
+                                    <td>@student.Phone</td>
+                                    <td>@student.Gender</td>
+                                </tr>
+                            }
+                        </table>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

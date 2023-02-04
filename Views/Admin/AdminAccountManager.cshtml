@@ -1,0 +1,255 @@
+﻿@model PBL3.Models.Admin.AdminAccountManagerModel
+@inject IHttpContextAccessor _httpContextAccessor
+@{
+    string UserTagCreate = ViewBag.UserTagCreate;
+    string UserTagUpdate = ViewBag.UserTagCreate;
+    string UserTagDelete = ViewBag.UserTagDelete;
+}
+<div class='company-content' style="max-width:100%;">
+    <div class='company-page text-break' style="padding-bottom: 0px;">
+        <div class='headers' style="min-height: 120px;padding-top: 40px;">
+            <ul class='nav bg-white pt-1 mt-3' style="border-radius: 3px;">
+                <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                    <a data-controller="utm-tracking" class="nav-link me-3 active" style="border-bottom: solid;-webkit-text-stroke-width: medium;border-color: cornflowerblue;">Quản lí tài khoản Admin</a>
+                </li>
+            </ul>
+        </div>
+        @using (Html.BeginForm("AdminAccountManager", "Admin", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <div class="post-filter" style="background-color: white;padding:10px;display:-webkit-box;">
+                <div style="width: 10%;text-align: center;font-weight: 700;padding: 0px 10px;">
+                    @Html.LabelFor(m => m.CheckIsDeleted)
+                    @Html.CheckBoxFor(m => m.CheckIsDeleted, new { @class = "form-control", style = "font-size:1px;" })
+                </div>
+                <div style="width: 10%;text-align: center;font-weight: 700;padding: 0px 10px;">
+                    @Html.LabelFor(m => m.CheckIsApproved)
+                    @Html.CheckBoxFor(m => m.CheckIsApproved, new { @class = "form-control", style = "font-size:1px;" })
+                </div>
+                <div style="width: 20%;text-align: center;font-weight: 700;padding: 0px 10px;display:inherit;">
+                    <i class='fa-solid fa-magnifying-glass icon' style="padding-top:10px;position:absolute;padding-left:5px;"></i>
+                    @Html.TextBoxFor(m => m.CheckString, new { @placeholder = "Tìm kiếm ở đây...", @class = "form-control", style = "padding-left: 30px;", type = "search" })
+                </div>
+                <div style="width:10%;padding:0px 10px;display: inline-flex;">
+                    <input type="submit" name="submit" class="btn btn-primary" value="    Lọc" style="width:100%;" href="/Admin/AdminAccountManager/0" />
+                    <i class="fa fa-filter" style="position:absolute;padding:10px;color:white;"></i>
+                </div>
+            </div>
+
+
+            <div class='company-page__container' style="grid-template-columns: 600px 1fr;">
+                <div class='company-page__left mt-1' style="overflow: hidden;position: sticky;height: calc(100vh - 60px); top:60px;">
+                    <div class='panel panel-default jobs' style="overflow: scroll;height: 100%;">
+                        @{
+                            string str = "( ";
+                            if (Model.CheckIsApproved) str += "đã Duyệt, ";
+                            else str += "chờ Duyệt, ";
+                            if (Model.CheckIsDeleted) str += " đã Xóa)";
+                            else str += " chưa Xóa)";
+                        }
+                        <div class='panel-heading'>
+                            <h2 class='panel-title'>Có @Model.ListAccounts.Count() tài khoản. @str</h2>
+                        </div>
+                        <div class='panel-body' id="myTable" style="padding-top: 0px;">
+                            @{ Model.ListAccounts.Reverse();
+                                foreach (var Admin in Model.ListAccounts)
+                                {
+                                    <div class="job" id="job">
+                                        @if (Admin.Id == Model.SelectedAdminId) str = "darkturquoise";
+                                        else str = "white";
+                                        <div class='job_content' style="background-color: @str;padding: 7px 0px; border-radius:10px;">
+                                            <div class='logo'>
+                                                <div class='logo-wrapper job-details-link-wrapper'>
+                                                    <a>
+                                                        <picture>
+                                                            <img alt="@Admin.AvtLocation" src="~/images/admins/@Admin.AvtLocation" width="65">
+                                                        </picture>
+                                                    </a>
+                                                </div>
+                                                <div class='clearfix'></div>
+                                            </div>
+                                            <div class='job__description'>
+                                                <div class='job__body'>
+                                                    <div class='details'>
+                                                        <h3 class='title job-details-link-wrapper'>
+                                                            <a id="jobTitle">@Admin.SubName @Admin.GivenName</a>
+                                                        </h3>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class='city_and_posted_date d-none d-sm-flex'>
+                                                @if (Admin.IsApproved)
+                                                {
+                                                    <div class='feature new text' style="
+    color: white;">Đã duyệt</div>
+                                                }
+                                                else
+                                                {
+                                                    <div class='feature new text' style="
+    color: white;">Chờ phê duyệt</div>
+                                                }
+                                                <div class='distance-time-job-posted'>
+
+                                                    @{
+                                                        TimeSpan ts = DateTime.Now - Admin.Createdate;
+                                                        int Total = (int)ts.TotalMinutes;
+                                                        str = "";
+                                                        if (Total > 2592000)
+                                                        {
+                                                            <span class='distance-time highlight'>
+                                                                @Admin.Createdate.ToString("HH:mm tt dd/MM/yyyy")
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            int d = Total / 1440; Total %= 1440;
+                                                            int h = Total / 60; Total %= 60;
+                                                            int m = Total;
+                                                            if (d > 0) str += d + "d trước";
+                                                            else if (h > 0) str += h + "h trước";
+                                                            else str += m + "p trước";
+                                                            <span class='distance-time highlight'>
+                                                                @str
+                                                            </span>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="form-group" style="margin-bottom:0px;width:5%;">
+                                                <input type="submit" name="submit" class="btn btn-primary" style="width: 100%;float: left;padding-left: 1px;text-align: center;" asp-controller="Admin" asp-action="AdminAccountManager" asp-route-id="@Admin.Id" value="➤" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                        </div>
+                    </div>
+                </div>
+
+                @foreach (var Admin in Model.ListAccounts)
+                {
+                    if (Admin.Id == Model.SelectedAdminId)
+                    {
+                        <div class='company-page__right mt-1'>
+                            <div class='job-details' style="background-color: white;padding: 0 10px;">
+                                <div class='job-details__header'>
+                                    <nav class="post-more" style="float: right;">
+                                        <a target="_blank" asp-controller="Admin" asp-action="EditProfile" asp-route-id="@Admin.Id" class="login-window button">
+                                            <i class='fa-solid fa-edit icon'></i>
+                                        </a>
+                                        <a id="delete-account" class="login-window button">
+                                            @if (Admin.Isdeleted)
+                                            {
+                                                <i class='fa-solid fa-undo-alt icon'></i>
+                                            }
+                                            else
+                                            {
+                                                <i class='fa-solid fa-delete-left icon'></i>
+                                            }
+                                        </a>
+                                    </nav>
+
+                                    @{
+                                        if (Admin.Isdeleted)
+                                        {
+                                            <dialog id="confirm-delete" class="site-dialog" style="width: 50%;border-radius:10px;">
+                                                <header class="dialog-header">
+                                                    <h1>Xác nhận - Hủy xóa</h1>
+                                                </header>
+                                                <div class="dialog-content">
+                                                    <p>Bạn có muốn hủy xóa tài khoản này không?.</p>
+                                                </div>
+                                                <div class="btn-group cf" style="width:100%">
+                                                    <form asp-action="CancelDeleteAdminAccount" asp-route-id="@Admin.Id" style="width:50%;">
+                                                        <button class="btn btn-danger" type="submit" asp-action="CancelDeleteAdminAccount" asp-route-id="@Admin.Id">Hủy Xóa</button>
+                                                    </form>
+                                                    <button class="btn btn-cancel" id="cancel">Trở lại</button>
+
+                                                </div>
+                                            </dialog>
+                                        }
+                                        else
+                                        {
+                                            <dialog id="confirm-delete" class="site-dialog" style="width: 50%;border-radius:10px;">
+                                                <header class="dialog-header">
+                                                    <h1>Xác nhận - Xóa</h1>
+                                                </header>
+                                                <div class="dialog-content">
+                                                    <p>Bạn có muốn xóa tài khoản này không?.</p>
+                                                </div>
+                                                <div class="btn-group cf" style="width:100%">
+                                                    <form asp-action="DeleteAdminAccount" asp-route-id="@Admin.Id" style="width:50%;">
+                                                        <button class="btn btn-danger" type="submit" asp-action="DeleteAdminAccount" asp-route-id="@Admin.Id">Xóa</button>
+                                                    </form>
+                                                    <button class="btn btn-cancel" id="cancel">Hủy</button>
+
+                                                </div>
+                                            </dialog>
+                                        }
+                                    }
+
+                                    <h1 class='job-details__title'>@Admin.SubName @Admin.GivenName</h1>
+                                    <div class='job-details__apply'>
+                                        @if (Admin.IsApproved)
+                                        {
+                                            <div class="form-group" style="margin-bottom:0px;width:50%;">
+                                                <input type="submit" name="submit" class="btn btn-primary" style="width: 100%;position: absolute;margin-top: -10px;padding-left: 1px;text-align: center;" asp-controller="Admin" asp-action="CancelAdminAccountApproval" asp-route-id="@Admin.Id" value="Hủy duyệt tài khoản" />
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="form-group" style="margin-bottom:0px;width:50%;">
+                                                <input type="submit" name="submit" class="btn btn-primary" style="width: 100%;position: absolute;margin-top: -10px;padding-left: 1px;text-align: center;" asp-controller="Admin" asp-action="AdminAccountApproval" asp-route-id="@Admin.Id" value="Duyệt tài khoản" />
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                                @if (Admin.IsApproved)
+                                {
+                                    <div class='feature new text' style="color: white;background-color:orange;width: 140px;border-radius: 3px;float: right;">Đã duyệt</div>
+                                }
+                                else
+                                {
+                                    <div class='feature new text' style="color: white;background-color:orange;width: 140px;border-radius: 3px;float: right;">Chờ duyệt</div>
+                                }
+                                <div style="padding:20px">
+                                    <div class='job__description'>
+                                        <div class='job__body'>
+                                            <div class='details'>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class='distance-time-job-posted'>
+                                        <span class='distance-time highlight'>
+                                            Quản lí tài khoản: @Admin.SubName @Admin.GivenName
+                                            <br />Ngày sinh: @Admin.DateOfBirth.ToString("dd/MM/yyyy")
+                                            <br />Giới tính: @if (Admin.Gender == 1) str = "Nam"; else if (Admin.Gender == 2) str = "Nữ"; else str = "Trống"; @str
+                                            <br />Số điện thoại: @Admin.Phone
+                                            <br />Email: @Admin.Email
+                                            <br />
+                                            <br />Tạo lúc: @Admin.Createdate.ToString("HH:mm tt dd/MM/yyyy")
+                                            <br />Tạo bởi: @UserTagCreate
+                                            <br />Lần cập nhật gần nhất: @Admin.Updatedate.ToString("HH:mm tt dd/MM/yyyy")
+                                            <br />Cập nhật bởi: @UserTagUpdate
+                                            @if (Model.CheckIsDeleted)
+                                            {
+                                                str = "Xóa bởi: ";
+                                                <br />@str @UserTagDelete
+                                            }
+                                        </span>
+                                    </div>
+                                    <h2 class='job-details__second-title'>Mô tả công ty</h2>
+                                    <div class='job-details__paragraph'>
+                                        <p>@Admin.Bio</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>

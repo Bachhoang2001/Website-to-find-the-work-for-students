@@ -1,0 +1,615 @@
+﻿@model PBL3.Models.Company.HomePageModel
+
+<div class='company-content'>
+    <div class='company-page text-break'>
+        <div class='headers'>
+            <div class='headers__logo'>
+                <div class='headers__logo__img'>
+                    <picture>
+                        <img alt="@Model.CompanyName" src="~/images/companies/@Model.AvtLocation" width="100">
+                    </picture>
+                </div>
+            </div>
+            <div class='headers__info'>
+                <h1 class='headers__info__name'>
+                    @Model.CompanyName
+                </h1>
+                <div class='headers__info__item'>
+                    <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                        <i class="fa fa-location-dot"></i>
+                        @{ string str = "| ";
+                            foreach (var item in Model.ListCities)
+                            {
+                                str += item.CityName + " | ";
+                            }
+                            <div class='svg-icon__text'>@str</div>
+                        }
+                    </div>
+                    <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                        <i class="fa fa-location"></i>
+                        @{ str = "| ";
+                            foreach (var item in Model.ListSkills)
+                            {
+                                str += item.SkillName + " | ";
+                            }
+                            <div class='svg-icon__text'>@str</div>
+                        }
+                    </div>
+                    <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                        <i class="fa fa-star"></i>
+                        @if (Model.Rate == 0)
+                        {
+                            <div class='svg-icon__text'>Chưa có đánh giá nào</div>
+                        }
+                        else
+                        {
+                            <div class='svg-icon__text'>@Model.Rate.ToString("0.0")</div>
+                        }
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        <ul class='nav bg-white pt-1 mt-3' style="border-radius: 3px;">
+            <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                <a data-controller="utm-tracking" class="nav-link me-3 active" asp-controller="Company" asp-action="Index" style="-webkit-text-stroke-width:thin; color:black;">Bài đăng đã duyệt</a>
+            </li>
+            <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                <a data-controller="utm-tracking" class="nav-link me-3 active" style="border-bottom: solid;-webkit-text-stroke-width: medium;border-color: cornflowerblue;">Bài đăng chờ duyệt</a>
+            </li>
+            <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                <a data-controller="utm-tracking" class="nav-link ma-3 review-tab" asp-controller="Company" asp-action="Reviews" asp-route-id="@Model.CompanyID" style="-webkit-text-stroke-width:thin; color:black;">@Model.Company.CompanyFeedbacks.Count() Lượt đánh giá</a>
+            </li>
+        </ul>
+        <div class='company-page__container'>
+            <div class='company-page__left mt-1'>
+                <div class='panel panel-default jobs'>
+                    <div class='panel-heading'>
+                        <h2 class='panel-title'>Danh sách tuyển dụng: @Model.ListPosts.Count() bài.</h2>
+                    </div>
+                    <div class='panel-body'>
+                        @{
+                            foreach (var post in Model.ListPosts)
+                            {
+                                if (!post.IsApproved)
+                                {
+                                    <div class="job">
+                                        <div class='job_content'>
+                                            <div class='logo'>
+                                                <div class='logo-wrapper job-details-link-wrapper'>
+                                                    <a target="_blank" href="/companies/template-net">
+                                                        <picture>
+                                                            <img alt="@post.CompanyAvtPath" src="~/images/companies/@post.CompanyAvtPath" width="65">
+                                                        </picture>
+                                                    </a>
+                                                </div>
+                                                <div class='clearfix'></div>
+                                            </div>
+                                            <div class='job__description'>
+                                                <div class='job__body'>
+                                                    <div class='details'>
+                                                        <h3 class='title job-details-link-wrapper'>
+                                                            <a target="_self" asp-controller="Company" asp-action="Post" asp-route-id="@post.Id">@post.Title</a>
+                                                        </h3>
+                                                        <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                                            <i class="fa fa-money-check-dollar"></i>
+                                                            @if (post.IsDollar && post.MaxSalary != 0)
+                                                            {
+                                                                <div class='svg-icon__text'>$@post.MinSalary-@post.MaxSalary</div>
+                                                            }
+                                                            else if (!post.IsDollar && post.MaxSalary != 0)
+                                                            {
+                                                                <div class='svg-icon__text'>@post.MinSalary-@post.MaxSalary VNĐ</div>
+                                                            }
+                                                            else if (post.MaxSalary == 0)
+                                                            {
+                                                                <div class='svg-icon__text'>Mức lương hấp dẫn</div>
+                                                            }
+                                                        </div>
+                                                        <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                                            <i class="fa fa-location"></i>
+                                                            @{ str = "| ";
+                                                                foreach (var item in Model.ListSkills)
+                                                                {
+                                                                    if (post.SkillsId.Where(x => x == item.Id).Select(x => x).Count() > 0) { str += item.SkillName + " | "; }
+
+                                                                }
+                                                                <div class='svg-icon__text'>@str</div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class='city_and_posted_date d-none d-sm-flex'>
+                                                <div class='feature new text' style="
+    color: white;">Chờ phê duyệt</div>
+                                                <div class='city'>
+                                                    <div class='address'>
+                                                        @{ str = "| ";
+                                                            foreach (var item in Model.ListCities)
+                                                            {
+                                                                if (post.CitiesId.Where(x => x == item.Id).Select(x => x).Count() > 0) { str += item.CityName + " | "; }
+
+                                                            }
+                                                            <div class='text'>@str</div>
+                                                        }
+
+                                                    </div>
+                                                </div>
+                                                <div class='distance-time-job-posted'>
+                                                    <span class='distance-time highlight'>
+                                                        @post.CreateDate.ToString("HH:mm tt dd/MM/yyyy")
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+                        }
+
+                    </div>
+                    <div style="display: flex;justify-content: center;">
+                        @{
+                            int TotalPage = Model.ListPosts.Where(x => x.IsApproved == false).Count() / Model.MaxPerPage;
+                            if (Model.ListPosts.Where(x => x.IsApproved == true).Count() % Model.MaxPerPage > 0) TotalPage += 1;
+                            for (int i = 0; i < TotalPage; i++)
+                            {
+                                if (i + 1 == Model.CurrentPage)
+                                {
+                                    <a style="-webkit-text-stroke: thick;">[@(i+1)]</a>
+                                }
+                                else
+                                {
+                                    <a style="-webkit-text-stroke: medium;" asp-controller="Company" asp-action="PendingApproval" asp-route-id="@Model.CompanyID" asp-route-currentpage="@(i+1)">[@(i+1)]</a>
+                                }
+                            }
+                        }
+                    </div>
+                </div>
+
+
+                @*<div class='panel panel-default'>
+                        <div class='panel-heading'>
+                            <h3 class='panel-title'>
+                                Overview about Template.net
+                            </h3>
+                        </div>
+                        <div class='panel-body'>
+                            <p class='panel-sub-title'>
+                                A global platform for templates, graphic designs &amp; documents with over 100 Million users worldwide.
+                            </p>
+                            <div class='panel-paragraph'>
+                                <h3> </h3><p>Template.net (<a href="https://l.facebook.com/l.php?u=http%3A%2F%2Fwww.blueberrylabs.com%2F%3Ffbclid%3DIwAR1jvg8DNI3-yKmqVU3jHmdXECbXG85DF0zdzstxfqbU1FkDFySgo3byzXc&amp;h=AT3rrQ8tN8mLTnQ8-tMRK_aAn1_78O3ld29Fh8VhT4rleMp25Vpym0f42zAiL4BomY1PoEyo3UVxEGwkbQz2xTRjqep0R3ubI6mAKpEeCqM2XMsCo-ECc9Wph_3h2DIK6vlmqg">www.template.net</a>) is a Global Platform for Templates, Graphic Designs, and Documents, with over 100 Million users worldwide and growing! We create Beautiful Designs, Professional Content, and Powerful Technology.  </p><p>People enjoy working in Template.net. They enjoy the team camaraderie, flexibility, family style, and feeling part of the product's success.</p><p>Template.net has the offices India, Singapore, Philippines, United States with around 300 Employees. To expanse the business, we are looking for talents for the Vietnam Office with attractive salary and benefit</p><p>Come and be proud to be an integral part of developing the products that are sold globally and used by 100 millions of people around the world.</p>
+                            </div>
+                            <h3 class='panel-title'></h3>
+                            <ul class='employer-skills'>
+                                <li class='employer-skills__item'><a target="_blank" data-controller="utm-tracking" href="/it-jobs/nodejs">NodeJS</a></li>
+                                <li class='employer-skills__item'><a target="_blank" data-controller="utm-tracking" href="/it-jobs/reactjs">ReactJS</a></li>
+                                <li class='employer-skills__item'><a target="_blank" data-controller="utm-tracking" href="/it-jobs/html5">HTML5</a></li>
+                            </ul>
+                            <div class='panel-paragraph'>
+                            </div>
+                        </div>
+                    </div>*@
+
+                @*<div class='panel panel-default'>
+                        <div class='panel-heading'>
+                            <h3 class='panel-title'>Why You&#39;ll Love Working Here</h3>
+                        </div>
+                        <div class='panel-body'>
+                            <ul class='reasons-to-join'>
+                                <li class='item'>
+                                    <span class='number'>1</span>
+                                    <span class='panel-paragraph'>A fun and diverse team of creative individuals</span>
+                                </li>
+                                <li class='item'>
+                                    <span class='number'>2</span>
+                                    <span class='panel-paragraph'>Competitive salary (above market standard)</span>
+                                </li>
+                                <li class='item'>
+                                    <span class='number'>3</span>
+                                    <span class='panel-paragraph'>Amazing product (Template.net &gt; 100 million users)</span>
+                                </li>
+                            </ul>
+
+                            <div class='environment'>
+                                <div class='swiper' data-controller='photo-slider'>
+                                    <div class='swiper-wrapper'>
+                                        <div class='swiper-slide'>
+                                            <div class='swiper-slide-inner'>
+                                                <picture>
+                                                    <source data-srcset='https://itviec.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBMXJHSmc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--3982afa1519180f6170378aa73a9858dd6f38dbb/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCam9MWm05eWJXRjBPZ2wzWldKdyIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--a2e64a8b0a0d7c1917b2f1598b6b65a9ea2f46e2/Purple%20Black%20&amp;%20White%20Big%20Money%20Mistake%20YouTube%20Thumbnail.png'>
+                                                    <img data-controller='lazyload' data-src='https://itviec.com/rails/active_storage/blobs/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBMXJHSmc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--3982afa1519180f6170378aa73a9858dd6f38dbb/Purple%20Black%20&amp;%20White%20Big%20Money%20Mistake%20YouTube%20Thumbnail.png'>
+                                                </picture>
+                                            </div>
+                                        </div>
+                                        <div class='swiper-slide'>
+                                            <div class='swiper-slide-inner'>
+                                                <picture>
+                                                    <source data-srcset='https://itviec.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBOHpISmc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--c27aeaac40c12141275fc8d6a367eb08f837277a/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBPZ2wzWldKd09oTnlaWE5wZW1WZmRHOWZabWxzYkZzSGFRSitBbWtDd2dFPSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--37dacfa8f03d273130813e08b771bc430942de1e/4.jpg'>
+                                                    <img data-controller='lazyload' data-src='https://itviec.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBOHpISmc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--c27aeaac40c12141275fc8d6a367eb08f837277a/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RTNKbGMybDZaVjkwYjE5bWFXeHNXd2RwQW40Q2FRTENBUT09IiwiZXhwIjpudWxsLCJwdXIiOiJ2YXJpYXRpb24ifX0=--936fa23c93c52555fa070a7af00c16ee7c1224a9/4.jpg'>
+                                                </picture>
+                                            </div>
+                                        </div>
+                                        <div class='swiper-slide'>
+                                            <div class='swiper-slide-inner'>
+                                                <picture>
+                                                    <source data-srcset='https://itviec.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBODNISmc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--5767cd88f5c79096603d149c982072bed6e9f722/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBPZ2wzWldKd09oTnlaWE5wZW1WZmRHOWZabWxzYkZzSGFRSitBbWtDd2dFPSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--37dacfa8f03d273130813e08b771bc430942de1e/12.jpg'>
+                                                    <img data-controller='lazyload' data-src='https://itviec.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBODNISmc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--5767cd88f5c79096603d149c982072bed6e9f722/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RTNKbGMybDZaVjkwYjE5bWFXeHNXd2RwQW40Q2FRTENBUT09IiwiZXhwIjpudWxsLCJwdXIiOiJ2YXJpYXRpb24ifX0=--936fa23c93c52555fa070a7af00c16ee7c1224a9/12.jpg'>
+                                                </picture>
+                                            </div>
+                                        </div>
+                                        <div class='swiper-slide'>
+                                            <div class='swiper-slide-inner'>
+                                                <picture>
+                                                    <source data-srcset='https://itviec.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBODdISmc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--b49b845bf8fa7951300bac0641870adf3ba51225/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBPZ2wzWldKd09oTnlaWE5wZW1WZmRHOWZabWxzYkZzSGFRSitBbWtDd2dFPSIsImV4cCI6bnVsbCwicHVyIjoidmFyaWF0aW9uIn19--37dacfa8f03d273130813e08b771bc430942de1e/9.jpg'>
+                                                    <img data-controller='lazyload' data-src='https://itviec.com/rails/active_storage/representations/proxy/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaHBBODdISmc9PSIsImV4cCI6bnVsbCwicHVyIjoiYmxvYl9pZCJ9fQ==--b49b845bf8fa7951300bac0641870adf3ba51225/eyJfcmFpbHMiOnsibWVzc2FnZSI6IkJBaDdCem9MWm05eWJXRjBTU0lJYW5CbkJqb0dSVlE2RTNKbGMybDZaVjkwYjE5bWFXeHNXd2RwQW40Q2FRTENBUT09IiwiZXhwIjpudWxsLCJwdXIiOiJ2YXJpYXRpb24ifX0=--936fa23c93c52555fa070a7af00c16ee7c1224a9/9.jpg'>
+                                                </picture>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class='swiper-pagination'></div>
+                                    <div class='swiper-button-prev'></div>
+                                    <div class='swiper-button-next'></div>
+                                </div>
+                                <br>
+                                <br>
+                            </div>
+                            <div class='panel-paragraph'>
+                                <ul>
+                                    <li>High paying Salary, Full Salary in Probation.</li>
+                                    <li>13th-month Salary and Performance Bonus</li>
+                                    <li>Flexible 14 days Leave</li>
+                                    <li>Private Health Insurance</li>
+                                    <li>Flexible Timings,  5 days working</li>
+                                    <li>Monthly Party and Yearly Outings</li>
+                                    <li>Working with high skilled Developers on a Global Product with Millions of Users</li>
+                                    <li>Fully stocked Pantry</li>
+                                    <li>Annual Health Checkup</li>
+                                    <li>Laptop of your choice</li>
+                                    <li>Friendly International Working Environment</li>
+                                    <li>Order Books, Buy online learning Material</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>*@
+
+
+                @*<div class='panel panel-default' data-controller='employers--location' data-employers--location-key-value='AIzaSyAMccvlWFDk8E9b5Bk6YdPh1ZUht-JPcqU' data-employers--location-src-value='https://www.google.com/maps/embed/v1/place?key=AIzaSyAMccvlWFDk8E9b5Bk6YdPh1ZUht-JPcqU&amp;q=Etown+2%2C+364+C%E1%BB%99ng+H%C3%B2a%2C+Ph%C6%B0%E1%BB%9Dng+13%2C+Tan+Binh%2C+Ho+Chi+Minh' data-employers--location-url-value='https://www.google.com/maps/embed/v1/place'>
+                        <div class='panel-heading'>
+                            <h3 class='panel-title'>
+                                Location
+                            </h3>
+                        </div>
+                        <div class='panel-body location'>
+                            <div class='row'>
+                                <div class='col-md-3'>
+                                    <div class='full-address no-bold-text' data-employers--location-target='place' data-location='Etown+2%2C+364+C%E1%BB%99ng+H%C3%B2a%2C+Ph%C6%B0%E1%BB%9Dng+13%2C+Tan+Binh%2C+Ho+Chi+Minh'>
+                                        Etown 2, 364 Cộng Hòa, Phường 13<br>Tan Binh<br>Ho Chi Minh
+                                    </div>
+                                </div>
+                                <div class='col-md-9'>
+                                    <div>
+                                        <iframe allowfullscreen class='map' data-employers--location-target='map' frameborder='0' height='100%' style='border:0' width='100%'></iframe>
+                                    </div>
+                                    <div class='employer-pageviews'>
+                                        <p>Total views: 10,258</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>*@
+            </div>
+            <div class='company-page__right mt-1'>
+                @*<div class='panel panel-default'>
+                        <div class='panel-heading'>
+                            <h2 class='panel-title'>Overall Rating</h2>
+                        </div>
+                        <div class='panel-body disable-user-select'>
+
+                            <div class='d-flex align-items-center'>
+                                <span class='rating-stars-box'>
+                                    <span class='blue-stars'>
+                                        <img class="size" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="40" height="38" />
+                                        <img class="size" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="40" height="38" />
+                                        <img class="size" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="40" height="38" />
+                                        <img class="size" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="40" height="38" />
+                                    </span>
+                                    <span class='two-colors-star' style='--blue-width: 30.0%; --grey-width: 70.0%'>
+                                        <img class="size" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="40" height="38" />
+                                    </span>
+                                    <span class='grey-stars'>
+                                    </span>
+                                </span>
+                                <span class='company-ratings__star-point'>4.3</span>
+                            </div>
+                            <hr class='divider'>
+                            <table data-controller='reviews--rating-circle-progress' data-reviews--rating-circle-progress-value-value='100'>
+                                <tr>
+                                    <td class='chart' data-reviews--rating-circle-progress-target='recommend' id='company-rating__rate'>
+                                        <strong></strong>
+                                    </td>
+                                    <td class='pl-10'>Recommend working here to a friend</td>
+                                </tr>
+                            </table>
+                            <hr class='divider'>
+                            <div class='company-details-ratings'>
+                                <div class='company-details-ratings__item'>
+                                    <div class='company-details-ratings__item-text'>Salary &amp; benefits</div>
+                                    <div class='company-details-ratings__item-stars'>
+                                        <span class='rating-bar-box'>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <span style='width: 76.0%;'>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class='company-details-ratings__item-rate text-nowrap'>3.8</div>
+                                </div>
+                                <div class='company-details-ratings__item'>
+                                    <div class='company-details-ratings__item-text'>Training &amp; learning</div>
+                                    <div class='company-details-ratings__item-stars'>
+                                        <span class='rating-bar-box'>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <span style='width: 70.0%;'>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class='company-details-ratings__item-rate text-nowrap'>3.5</div>
+                                </div>
+                                <div class='company-details-ratings__item'>
+                                    <div class='company-details-ratings__item-text'>Management cares about me</div>
+                                    <div class='company-details-ratings__item-stars'>
+                                        <span class='rating-bar-box'>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <span style='width: 100.0%;'>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class='company-details-ratings__item-rate text-nowrap'>5.0</div>
+                                </div>
+                                <div class='company-details-ratings__item'>
+                                    <div class='company-details-ratings__item-text'>Culture &amp; fun</div>
+                                    <div class='company-details-ratings__item-stars'>
+                                        <span class='rating-bar-box'>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <span style='width: 96.0%;'>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class='company-details-ratings__item-rate text-nowrap'>4.8</div>
+                                </div>
+                                <div class='company-details-ratings__item'>
+                                    <div class='company-details-ratings__item-text'>Office &amp; workspace</div>
+                                    <div class='company-details-ratings__item-stars'>
+                                        <span class='rating-bar-box'>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#E9E9E9" />
+                                            </svg>
+                                            <span style='width: 96.0%;'>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                                <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M6.24897 0.487005L4.54019 4.10687L0.717021 4.68922C0.0314143 4.79311 -0.243352 5.67621 0.253844 6.182L3.01982 8.99806L2.36562 12.9761C2.24786 13.6951 2.97272 14.2337 3.57982 13.8975L7 12.0192L10.4202 13.8975C11.0273 14.231 11.7521 13.6951 11.6344 12.9761L10.9802 8.99806L13.7462 6.182C14.2434 5.67621 13.9686 4.79311 13.283 4.68922L9.45981 4.10687L7.75103 0.487005C7.44486 -0.158228 6.55776 -0.16643 6.24897 0.487005Z" fill="#4287F5" />
+                                                </svg>
+                                            </span>
+                                        </span>
+                                    </div>
+                                    <div class='company-details-ratings__item-rate text-nowrap'>4.8</div>
+                                </div>
+                            </div>
+                            <div class='mt-20'>
+                                <a class="button ibutton full-width ibutton-red" href="/companies/template-net/review">See all ratings and reviews</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class='panel panel-default company-ratings'>
+                        <div class='panel-heading'>
+                            <h3 class='panel-title'>Top Reviews</h3>
+                        </div>
+                        <div class='panel-body disable-user-select'>
+
+                            <div class='featured-review'>
+                                <span class='featured-review__title'>Phúc lợi ổn</span>
+                                <span class='rating-stars-box'>
+                                    <span class='blue-stars'>
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                    </span>
+                                    <span class='grey-stars'>
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                    </span>
+                                </span>
+                                <div class='featured-review__paragraph'>
+                                    Công ty lương ổn. Cuối tuần có teabreak. Có lương 13 + bonus dự án và bonus hàng năm. Nếu lúc làm bạn thể hiện tốt thì sẽ được review lương xịn.
+                                    Không có OT. Chủ yếu vẫn là tự mình làm chủ task.
+                                </div>
+                            </div>
+                            <div class='featured-review'>
+                                <hr>
+                                <span class='featured-review__title'>Công ty phúc lợi ổn, tốt</span>
+                                <span class='rating-stars-box'>
+                                    <span class='blue-stars'>
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                    </span>
+                                    <span class='grey-stars'>
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                    </span>
+                                </span>
+                                <div class='featured-review__paragraph'>
+                                    Công ty làm hybrid, thoải mái giờ giấc, không check-in, check-out, anh em đồng nghiệp hoà đồng, thân thiện, hay giúp đỡ nhau. F0 được hỗ trợ, hỏi han tận tình.
+                                    Không có OT nên mình thấy rất hài lòng. Anh em chỉ bận khi đến lúc grooming hay releas...
+                                </div>
+                            </div>
+                            <div class='featured-review'>
+                                <hr>
+                                <span class='featured-review__title'>Đồng nghiệp tốt, dự án học được nhiều thứ</span>
+                                <span class='rating-stars-box'>
+                                    <span class='blue-stars'>
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                        <img class="small" src="https://itviec.com/assets/rating-star-white-7e936fe21658ee9a7bf982b9ec56935cc7e20ffb6565217982c371d50c919653.svg" width="20" height="19" />
+                                    </span>
+                                    <span class='grey-stars'>
+                                    </span>
+                                </span>
+                                <div class='featured-review__paragraph'>
+                                    Văn phòng đẹp, dự án học được nhiều thứ, sếp tốt đồng nghiệp tốt
+                                    Không ép buộc OT, thời gian làm việc linh hoạt. có thể work from home
+                                </div>
+                            </div>
+                            <br>
+                            <a class="button ibutton full-width big ibutton-red" rel="nofollow" href="/sign_in?employer=template-net&amp;sign_in_then_review=true">Write a review</a>
+                        </div>
+                    </div>*@
+            </div>
+        </div>
+    </div>
+</div>
+

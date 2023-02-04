@@ -1,0 +1,177 @@
+﻿@model PBL3.Models.Company.CompanyProfileModel
+@{ 
+    string State = ViewData["State"] == null ? "" : ViewData["State"].ToString();
+}
+<div class='company-content'>
+    <div class='company-page text-break' style="padding-top:60px;">
+        <ul class='nav bg-white pt-1 mt-3' style="border-radius: 3px;">
+            <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                <a data-controller="utm-tracking" class="nav-link me-3 active" style="border-bottom: solid;-webkit-text-stroke-width: medium;border-color: cornflowerblue;">Chỉnh sửa thông tin</a>
+            </li>
+            <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                <a data-controller="utm-tracking" class="nav-link me-3 active" style="-webkit-text-stroke-width:thin; color:black;" asp-controller="Company" asp-action="EditAccountPassword">Đổi mật khẩu</a>
+            </li>
+        </ul>
+        @using (Html.BeginForm("EditProfile", "Company", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <div class='company-page__container'>
+
+                <div class='company-page__left mt-1'>
+                    <div class='panel-body' style="background:white;padding: 10px 50px 10px 50px;border-radius: 5px;">
+
+                        @Html.AntiForgeryToken()
+                        @if (State == "Profile Suscess")
+                        {
+                            <div class="form-group" style="color: white;background: green;border-radius: 3px;padding:7px;">
+                                Cập nhật thông tin thành công!
+                            </div>
+                        }
+                        else if (State == "Profile Failed")
+                        {
+                            <div class="form-group" style="color: white;background: red;border-radius: 3px;padding:7px;">
+                                Cập nhật thông tin không thành công!<br />Vui lòng điền đầy đủ thông tin.
+                            </div>
+                        }
+
+                        <div style="border-bottom-style:solid;">
+                            <h3>Thông tin cá nhân</h3>
+                        </div>
+                        <div style="border-bottom-style:solid;display: grid;">
+                            <div style="display: flex;justify-content: space-between;">
+                                <div class="form-group" style="width:45%;">
+                                    @Html.LabelFor(m => m.User.SubName)<p class="text-danger" style="display:contents"> *</p>
+                                    @Html.TextBoxFor(m => m.User.SubName, new { @class = "form-control", @placeholder = "Nhập họ của bạn" })
+                                    @Html.ValidationMessageFor(m => m.User.SubName, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="form-group" style="width:45%;">
+                                    @Html.LabelFor(m => m.User.GivenName)<p class="text-danger" style="display:contents"> *</p>
+                                    @Html.TextBoxFor(m => m.User.GivenName, new { @class = "form-control", @placeholder = "Nhập tên của bạn" })
+                                    @Html.ValidationMessageFor(m => m.User.GivenName, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                            <div style="display: flex;justify-content: space-between;">
+                                <div class="form-group" style="width:45%;">
+                                    @Html.LabelFor(m => m.SelectedGender)
+                                    @Html.DropDownListFor(m => m.SelectedGender, Model.ListGender, new { @class = "form-control" })
+                                </div>
+                                <div class="form-group" style="width:45%;">
+                                    <label for="User_DateOfBirth">Ngày sinh</label>
+                                    <input class="form-control" data-val="true" data-val-required="The ngày sinh field is required." id="User_DateOfBirth" name="User.DateOfBirth" type="date" value=@Model.User.DateOfBirth.ToString("yyyy-MM-dd")>
+                                </div>
+                            </div>
+                            <div style="display: flex;justify-content: space-between;">
+                                <div class="form-group" style="width:45%;">
+                                    @Html.LabelFor(m => m.User.Email)<p class="text-danger" style="display:contents"> *</p>
+                                    @Html.TextBoxFor(m => m.User.Email, new { @class = "form-control", @placeholder = "Nhập email" })
+                                    @Html.ValidationMessageFor(m => m.User.Email, "", new { @class = "text-danger" })
+                                </div>
+                                <div class="form-group" style="width:45%;">
+                                    @Html.LabelFor(m => m.User.Phone)<p class="text-danger" style="display:contents"> *</p>
+                                    @Html.TextBoxFor(m => m.User.Phone, new { @class = "form-control", @placeholder = "Nhập số điện thoại" })
+                                    @Html.ValidationMessageFor(m => m.User.Phone, "", new { @class = "text-danger" })
+                                </div>
+                            </div>
+                        </div>
+                        <div style="border-bottom-style:solid;">
+                            <h3>Thông tin Công ty</h3>
+                        </div>
+                        <div style="display: inline-flex;padding-top: 10px;padding-bottom: 10px;border-bottom-style:outset;padding-right:200px">
+                            <div class="form-group" style="display: grid;">
+                                @Html.LabelFor(m => m.LogoImage)<p class="text-danger" style="display:contents"> *</p>
+                                @Html.TextBoxFor(m => m.LogoImage, new { type = "file", @value = "Tải ảnh lên" })
+                                @Html.ValidationMessageFor(m => m.LogoImage, "", new { @class = "text-danger" })
+                                <div class="form-group" style="color:red;">
+                                    @ViewBag.ImagesError
+                                </div>
+                            </div>
+                            <div class='headers__logo'>
+                                <div class='headers__logo__img'>
+                                    <picture>
+                                        <img alt="@Model.User.AvtLocation" src="~/images/companies/@Model.User.AvtLocation" width="100">
+                                    </picture>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="border-bottom-style:solid;display: grid;margin-bottom:10px;">
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Company.CompanyName)<p class="text-danger" style="display:contents"> *</p>
+                                @Html.TextBoxFor(m => m.Company.CompanyName, new { @class = "form-control", @value = "Nhập tên công ty" })
+                                @Html.ValidationMessageFor(m => m.Company.CompanyName, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.Company.Website)<p class="text-danger" style="display:contents"> *</p>
+                                @Html.TextBoxFor(m => m.Company.Website, new { @class = "form-control", @value = "Nhập đường dẫn" })
+                                @Html.ValidationMessageFor(m => m.Company.Website, "", new { @class = "text-danger" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.User.Bio)
+                                @Html.TextAreaFor(m => m.User.Bio, new { @class = "form-control", @value = "Nhập tóm tắt", @style = "min-height:150px;" })
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(m => m.ListCitiesId)<p class="text-danger" style="display:contents"> *</p>
+                                @Html.ListBoxFor(m => m.ListCitiesId, Model.GetAllCity, new { style = "width:300px" })
+                                <br />
+                                @Html.ValidationMessageFor(m => m.ListCitiesId, "", new { @class = "text-danger" })
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="submit" name="submit" class="btn btn-primary" value="Lưu thay đổi" style="width:100%;" />
+                        </div>
+
+                    </div>
+                </div>
+                <div class='company-page__right mt-1'>
+                    <div class='panel-body' style="background:white;padding: 10px 50px 10px 50px;border-radius: 5px; margin-left:1px;">
+                        @if (State == "Skill Added")
+                        {
+                            <div class="form-group" style="color: white;background: green;border-radius: 3px;padding:7px;">
+                                Đã thêm 1 kĩ năng: @ViewData["Skill"].ToString()
+                            </div>
+                        }
+                        else if (State == "Skill Deleted")
+                        {
+                            <div class="form-group" style="color: white;background: #ffd800;border-radius: 3px;padding:7px;">
+                                Đã xóa 1 kĩ năng: @ViewData["Skill"].ToString()
+                            </div>
+                        }
+                        else if (State == "Skill Already Exists")
+                        {
+                            <div class="form-group" style="color: white;background: #ff4f4f;border-radius: 3px;padding:7px;">
+                                Kĩ năng: @ViewData["Skill"].ToString() đã tồn tại.
+                            </div>
+                        }
+                        <div style="border-bottom-style:solid;">
+                            <h3>Thêm kĩ năng</h3>
+                        </div>
+                        <div style="display: inline-block; padding-top:10px;">
+                            <div style="width: 20%;text-align: center;font-weight: 700;padding: 0px 10px;display:inherit;">
+                                <i class='fa-solid fa-magnifying-glass icon' style="padding-top: 10px;position: absolute;margin-left: -5px;"></i>
+                                @Html.TextBoxFor(m => m.SearchSkill, new { @placeholder = "Tìm kiếm ở đây...", @class = "form-control", style = "padding-left: 30px;width:200px;margin-bottom:20px;", type = "search" })
+                            </div>
+                            <input type="submit" name="submit" class="btn btn-primary" value="Tìm" style="width: 50px;position: absolute;right: 120px;" asp-route-value="search" />
+                        </div>
+                        <p>Kết quả: </p>
+                        @foreach (var skill in Model.ListSkills)
+                        {
+                            <a class="button" asp-controller="Company" asp-action="AddSkill" asp-route-skillid="@skill.Id" asp-route-companyid="@Model.Company.Id" style="margin-bottom:5px;">@skill.SkillName</a>
+                        }
+                        <div style="border-bottom-style:outset;"></div>
+                        <div style="border-bottom-style:solid;margin-bottom:20px;">
+                            <h3>Xóa kĩ năng</h3>
+                        </div>
+                        @foreach (var skill in Model.Company.CompanySkills)
+                        {
+                            <a class="button" asp-controller="Company" asp-action="DeleteSkill" asp-route-skillid="@skill.SkillId" asp-route-companyid="@Model.Company.Id" style="margin-bottom:5px;">@skill.Skill.SkillName</a>
+                        }
+                        <div style="border-bottom-style:outset;"></div>
+                        <div style="border-bottom-style:solid;margin-bottom:20px;">
+                            <h4>Bạn có biết?</h4>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        }
+    </div>
+</div>
+

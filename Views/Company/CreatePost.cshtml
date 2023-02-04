@@ -1,0 +1,67 @@
+﻿ @model PBL3.Models.Company.PostModel
+
+<h4>CompanyPost</h4>
+<hr />
+<div class="row justify-content-md-center">
+    <div class="col-md-9" style="margin-top:30px;">
+        <div class="card">
+            <div class="card-header">
+                Tạo bài tuyển dụng mới
+            </div>
+            <div class="card-body" style="padding-bottom: 50px;">
+                @using (Html.BeginForm("CreatePost", "Company", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Title)<p class="text-danger" style="display:contents"> *</p>
+                        @Html.TextAreaFor(m => m.Title, new { @class = "form-control", @placeholder = "Nhập tiêu đề..." })
+                        @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Content)<p class="text-danger" style="display:contents"> *</p>
+                        @Html.TextAreaFor(m => m.Content, new { @class = "form-control", @placeholder = "Nhập nội dung..." })
+                        @Html.ValidationMessageFor(m => m.Content, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ListCityId)<p class="text-danger" style="display:contents"> *</p>
+                        <div>
+                            @Html.ListBoxFor(m => m.ListCityId, Model.GetAllCity, new { style = "width:300px" })
+                        </div>
+                        @Html.ValidationMessageFor(m => m.ListCityId, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ListSkillId)<p class="text-danger" style="display:contents"> *</p>
+                        <div>
+                            @Html.ListBoxFor(m => m.ListSkillId, Model.GetAllSkill, new { style = "width:300px" })
+                        </div>
+                        @Html.ValidationMessageFor(m => m.ListSkillId, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.MinSalary)<p class="text-danger" style="display:contents"> *</p>
+                        @Html.TextBoxFor(m => m.MinSalary, new { @class = "form-control", @placeholder = "Ví dụ: 500" })
+                        @Html.ValidationMessageFor(m => m.MinSalary, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.MaxSalary)<p class="text-danger" style="display:contents"> *</p>
+                        @Html.TextBoxFor(m => m.MaxSalary, new { @class = "form-control", @placeholder = "Ví dụ: 2000" })
+                        @Html.ValidationMessageFor(m => m.MaxSalary, "", new { @class = "text-danger" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.IsDollar)
+                        @Html.CheckBoxFor(m => m.IsDollar, new { style = "width:30px" })
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" name="submit" class="btn btn-primary" value="Hoàn tất bài đăng" style="width:100%;" />
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

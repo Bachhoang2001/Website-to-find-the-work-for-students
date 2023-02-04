@@ -1,0 +1,64 @@
+﻿@model PBL3.Models.Home.IndexModel
+@{
+    List<CompanyProfile> topCompanies = ViewBag.TopCompanies;
+    List<Faculty> ListFaculties = ViewBag.ListFaculties;
+}
+
+<div class="search">
+    <h1 class="slogan text-light">
+        DUT Tuyển dụng, Kết nối Doanh nghiệp - Sinh viên
+    </h1>
+    @using (Html.BeginForm("Search", "Home", FormMethod.Post, new { enctype = "multipart/form-data", style = "display: flex;justify-content: center;" }))
+    {
+        @Html.AntiForgeryToken()
+<form class="form-inline">
+    <div style="width: 50%;text-align: center;font-weight: 700;padding: 0px 10px;display:inherit;">
+        @Html.TextBoxFor(m => m.CheckString, new { @placeholder = "Tìm kiếm ở đây...", @class = "search-input", style = "padding-left: 30px;width:100%;", type = "search" })
+        <i class='fa-solid fa-magnifying-glass icon' style="padding-left:5px;position:absolute; padding-top:10px;"></i>
+    </div>
+    <div style="width: 20%;text-align: center;font-weight: 700;padding: 0px 10px;">
+        @Html.DropDownListFor(m => m.SelectedFaculty, new SelectList(ListFaculties, "Id", "FacultyName"), new { @class = "form-select mx-2" })
+    </div>
+    <button class="btn btn-warning my-2 my-sm-0" name="submit" type="submit" style="height:40px;" asp-action="Search" asp-controller="Home" asp-route-id="0">Tìm kiếm</button>
+</form>
+    }
+</div>
+<div class="homepage_jobs-container">
+</div>
+<div class="top-companies">
+    <div class="title" style="font-size: 20px;font-weight: bolder;">Nhà Tuyển Dụng Hàng Đầu</div>
+    <div class="row">
+        @{
+            foreach (var item in topCompanies)
+            {
+                <div class="col-xs-12 col-md-3">
+                    <a class="top-company" asp-controller="Company" asp-action="Index" asp-route-id="@item.Id">
+                        <div class="top-company__logo text-center">
+                            <picture>
+                                <img alt="@item.CompanyName" width="170" class="lazyloaded" src="./images/companies/@item.IdNavigation.AvtLocation">
+                            </picture>
+                        </div>
+                        <div class="top-company__name text-center">@item.CompanyName</div>
+                        <footer class="top-company__footer text-center">
+                            <span class="top-company__footer-jobs">
+                                <span class="red link">
+                                    @item.CompanyPosts.Count() Việc làm
+                                </span>
+                                <span>&nbsp;-&nbsp;</span>
+                            </span>
+                            @{
+                                string str = "";
+                                foreach (var City in item.CompanyCities)
+                                {
+                                    str += City.City.CityName;
+                                    break;
+                                }
+                            }
+                            <span class="top-company__footer-city">@str</span>
+                        </footer>
+                    </a>
+                </div>
+            }
+        }
+    </div>
+</div>

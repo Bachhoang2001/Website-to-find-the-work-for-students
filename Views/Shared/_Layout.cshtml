@@ -1,0 +1,124 @@
+﻿@using PBL3.Models.Common
+@{
+    LayoutModel Layout = new LayoutModel();
+    List<string> ListSkill = Layout.GetTopSkill(1);
+    List<string> ListPosition = Layout.GetTopSkill(2);
+    List<string> ListLevel = Layout.GetTopSkill(3);
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="~/favicon.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <div class="dut-titlelogo">
+                <a asp-controller="Home" asp-action="Index">
+                    <img class="logo-dut" alt="logo-dut" src="~/images/bkdnlogo.jpg" width="52" height="52" style=" position:absolute;">
+                </a>
+                <span class="navbar-text" style="margin-left:62px;font-weight: 700;color: #f7ff07;">
+                    ĐẠI HỌC ĐÀ NẴNG <br />TRƯỜNG ĐẠI HỌC BÁCH KHOA
+                </span>
+            </div>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <button class="dropbtn" asp-controller="Home" asp-action="RecommentSearch" asp-route-search="">
+                            Việc làm
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <div class="sub-menu1">
+                            <ul style="padding-left:0px;">
+                                <li class="hover-me">
+                                    <a class="sub-title2" href="#">Việc làm theo Kỹ năng</a>
+                                    <div class="sub-menu2">
+                                        <ul class="row" style="padding-left:15px;">
+                                            @foreach (string skill in ListSkill)
+                                            {
+                                                <li class="col"><a asp-controller="Home" asp-action="RecommentSearch" asp-route-search="@skill">@skill</a></li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li class="hover-me">
+                                    <a class="sub-title2" href="#">Việc làm theo Vị trí</a>
+                                    <div class="sub-menu2" style="top:48px;">
+                                        <ul class="row" style="padding-left:15px;">
+                                            @foreach (string position in ListPosition)
+                                            {
+                                                <li class="col"><a asp-controller="Home" asp-action="RecommentSearch" asp-route-search="@position">@position</a></li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li class="hover-me">
+                                    <a class="sub-title2" href="#">Việc làm theo Cấp bậc</a>
+                                    <div class="sub-menu2" style="top:96px;">
+                                        <ul class="row" style="padding-left:15px;">
+                                            @foreach (string level in ListLevel)
+                                            {
+                                                <li class="col"><a asp-controller="Home" asp-action="RecommentSearch" asp-route-search="@level">@level</a></li>
+                                            }
+                                        </ul>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    @*<li class="nav-item">
+                        <button class="dropbtn">
+                            Top Công ty
+                            <i class="fa fa-caret-down"></i>
+                        </button>
+                        <div class="sub-menu1">
+                            <ul style="padding-left:0px;">
+                                <li class="hover-me">
+                                    <a class="sub-title3" href="#">Công ty tốt nhất</a>
+                                    <div class="sub-menu3">
+                                        <ul style="padding-left:0px;">
+                                            <li><a href="#">Năm 2022</a></li>
+                                            <li><a href="#">Năm 2021</a></li>
+                                            <li><a href="#">Năm 2020</a></li>
+                                            <li><a href="#">Năm 2019</a></li>
+                                        </ul>
+                                    </div>
+                                </li>
+                                <li><a href="#">Review Công ty</a></li>
+                            </ul>
+                        </div>
+                    </li>*@
+                </ul>
+            </div>
+            <div class="navbar-collapse collapse d-sm-inline-flex flex-sm-row-reverse">
+                <partial name="_LoginPartial.cshtml" />
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid">
+        <main role="main" class="body1">
+            @RenderBody()
+        </main>
+    </div>
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; PBL3 - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

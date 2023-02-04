@@ -1,0 +1,60 @@
+﻿@model PBL3.Models.Company.PostModel
+<h4>Edit Post</h4>
+<hr />
+<div class="row justify-content-md-center">
+    <div class="col-md-9" style="margin-top:30px;">
+        <div class="card">
+            <div class="card-header">
+                Chỉnh sửa bài đăng
+            </div>
+            <div class="card-body" style="padding-bottom: 50px;">
+                @using (Html.BeginForm("EditPost", "Company", FormMethod.Post))
+                {
+                    @Html.AntiForgeryToken()
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Title)
+                        @Html.TextAreaFor(m => m.Title, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.Content)
+                        @Html.TextAreaFor(m => m.Content, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ListCityId)
+                        <div>
+                            @Html.ListBoxFor(m => m.ListCityId, Model.GetAllCity, new { style = "width:300px" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.ListSkillId)
+                        <div>
+                            @Html.ListBoxFor(m => m.ListSkillId, Model.GetAllSkill, new { style = "width:300px" })
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.MinSalary)
+                        @Html.TextBoxFor(m => m.MinSalary, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.MaxSalary)
+                        @Html.TextBoxFor(m => m.MaxSalary, new { @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(m => m.IsDollar)
+                        @Html.CheckBoxFor(m => m.IsDollar, new { style = "width:30px" })
+                    </div>
+                    <div class="form-group">
+                        <input type="submit" name="submit" class="btn btn-primary" value="Hoàn tất chỉnh sửa bài đăng" style="width:100%;" />
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,140 @@
+﻿@model PBL3.Models.Admin.StudentAccountProfileManagerModel
+@{
+    int Count = 1;
+    int State = ViewBag.State;
+    if (Model.ListStudents.Count() == 0) State = -1;
+    string UserTag = ViewBag.UserTag;
+}
+<div class='company-content' style="max-width:100%;">
+    <div class='company-page text-break' style="padding-bottom: 0px;">
+        <div class='headers' style="min-height: 120px;padding-top: 40px;">
+            <ul class='nav bg-white pt-1 mt-3' style="border-radius: 3px;">
+                <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                    <a data-controller="utm-tracking" class="nav-link me-3 active" style="border-bottom: solid;-webkit-text-stroke-width: medium;border-color: cornflowerblue;">Quản lí tài khoản</a>
+                </li>
+                <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                    <a data-controller="utm-tracking" class="nav-link me-3 active" asp-controller="Admin" asp-action="CreateStudentAccount" style="-webkit-text-stroke-width:thin; color:black;">Tạo tài khoản sinh viên</a>
+                </li>
+            </ul>
+        </div>
+        @using (Html.BeginForm("StudentAccountProfileManager", "Admin", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <div class="post-filter" style="background-color: white;padding:10px;display:-webkit-box;">
+                <div style="width: 10%;text-align: center;font-weight: 700;padding: 0px 10px;">
+                    @Html.LabelFor(m => m.CheckIsDeleted)
+                    @Html.CheckBoxFor(m => m.CheckIsDeleted, new { @class = "form-control", style = "font-size:1px;" })
+                </div>
+                <div style="width: 10%;text-align: center;font-weight: 700;padding: 0px 10px;">
+                    @Html.LabelFor(m => m.CheckIsApproved)
+                    @Html.CheckBoxFor(m => m.CheckIsApproved, new { @class = "form-control", style = "font-size:1px;" })
+                </div>
+                <div style="width: 20%;text-align: center;font-weight: 700;padding: 0px 10px;">
+                    @Html.DropDownListFor(m => m.CheckCityId, new SelectList(Model.ListCities, "Id", "CityName"), new { @class = "form-control" })
+                </div>
+                <div style="width: 20%;text-align: center;font-weight: 700;padding: 0px 10px;">
+                    @Html.DropDownListFor(m => m.SelectedFacultyId, new SelectList(Model.ListFaculties, "Id", "FacultyName"), new { @class = "form-control" })
+                </div>
+                <div style="width: 20%;text-align: center;font-weight: 700;padding: 0px 10px;display:inherit;">
+                    <i class='fa-solid fa-magnifying-glass icon' style="padding-top:10px;position:absolute;padding-left:5px;"></i>
+                    @Html.TextBoxFor(m => m.CheckString, new { @placeholder = "Tìm kiếm ở đây...", @class = "form-control", style = "padding-left: 30px;", type = "search" })
+                </div>
+                <div style="width:10%;padding:0px 10px;display: inline-flex;">
+                    <input type="submit" name="submit" class="btn btn-primary" value="    Lọc" style="width:100%;" href="/Admin/StudentAccountProfileManager/0" />
+                    <i class="fa fa-filter" style="position:absolute;padding:10px;color:white;"></i>
+                </div>
+            </div>
+            @if (State == 1)
+            {
+                <div class="alert alert-primary" style="margin-bottom: 0px;">Reset mật khẩu thành công! User: @UserTag</div>
+            }
+            else if (State == 2)
+            {
+                <div class="alert alert-primary" style="color:red;margin-bottom:0px;;">Đã xóa tài khoản! User: @UserTag</div>
+            }
+            else if (State == 3)
+            {
+                <div class="alert alert-primary" style="margin-bottom: 0px;">Hủy xóa tài khoản thành công! User: @UserTag</div>
+            }
+            else if (State == 4)
+            {
+                <div class="alert alert-primary" style="margin-bottom: 0px;">Tải file thành công, chọn xác nhận để tiếp tục.</div>
+            }
+            else if (State == -1)
+            {
+                <div class="alert alert-primary" style="margin-bottom: 0px;">Không có sinh viên nào.</div>
+            }
+            else
+            {
+    <div class="alert alert-primary" style="margin-bottom: 0px;">Có @Model.ListStudents.Count() sinh viên được tìm thấy.</div>
+            }
+            <div class='company-page__container' style="grid-template-columns:1fr;">
+                <div class='company-page__left mt-1' style="overflow: hidden;position: sticky;height: calc(100vh - 60px); top:60px;">
+                    <div class='panel panel-default jobs' style="overflow: scroll;height: 100%;">
+                        @if (Model.ListStudents.Count() > 0)
+                        {
+                            <table cellpadding="3" cellspacing="0" border="1" style="width:100%;">
+                                <tr>
+                                    <td>STT</td>
+                                    <td>MSSV</td>
+                                    <td>Email</td>
+                                    <td>Họ</td>
+                                    <td>Tên</td>
+                                    <td>Ngày sinh</td>
+                                    <td>Khoa</td>
+                                    <td>Thành phố</td>
+                                    <td>Số điện thoại</td>
+                                    <td>Giới tính</td>
+                                    <td></td>
+                                </tr>
+                                @foreach (var student in Model.ListStudents)
+                                {
+                                    <tr>
+                                        <td>@Count</td>
+                                        <td>@student.Mssv</td>
+                                        <td>@student.IdNavigation.Email</td>
+                                        <td>@student.IdNavigation.SubName</td>
+                                        <td>@student.IdNavigation.GivenName</td>
+                                        <td>@student.IdNavigation.DateOfBirth.ToString("dd/MM/yyyy")</td>
+                                        <td>@student.FacultyNavigation.FacultyName</td>
+                                        <td>@student.CityNavigation.CityName</td>
+                                        <td>@student.IdNavigation.Phone</td>
+                                        <td>@{string Gender = student.IdNavigation.Gender == 1 ? "Nam" : student.IdNavigation.Gender == 2 ? "Nữ" : "Trống"; Count++;}@Gender</td>
+                                        <td>
+                                            <input class="button" type="submit" value="Reset Pw" asp-controller="Admin" asp-action="ResetPassword" asp-route-id="@student.Id" style="line-height:15px; height:20px;background-color:#66676c;color:white;" />
+                                            <a target="_blank" class="button" value="Sửa" asp-controller="Student" asp-action="EditProfile" asp-route-id="@student.Id" style="line-height:15px; height:20px;background-color:blue;color:white;min-width:15px;">Sửa</a>
+                                            @if (Model.CheckIsDeleted)
+                                            {
+                                                <input class="button" type="submit" value="Hủy xóa" asp-controller="Admin" asp-action="CancelDeleteStudent" asp-route-id="@student.Id" style="line-height:15px; height:20px;background-color:red;color:white;min-width:15px;" />
+                                            }
+                                            else
+                                            {
+                                                <input class="button" type="submit" value="Xóa" asp-controller="Admin" asp-action="DeleteStudent" asp-route-id="@student.Id" style="line-height:15px; height:20px;background-color:red;color:white;min-width:15px;" />}
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        }
+                        else
+                        {
+                            <table cellpadding="3" cellspacing="0" border="1" style="width:100%;">
+                                <tr>
+                                    <td>STT</td>
+                                    <td>MSSV</td>
+                                    <td>Email</td>
+                                    <td>Họ</td>
+                                    <td>Tên</td>
+                                    <td>Ngày sinh</td>
+                                    <td>Khoa</td>
+                                    <td>Thành phố</td>
+                                    <td>Số điện thoại</td>
+                                    <td>Giới tính</td>
+                                </tr>
+                            </table>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

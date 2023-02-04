@@ -1,0 +1,224 @@
+﻿@model PBL3.Models.Company.PostSubmittedModel
+@inject IHttpContextAccessor _httpContextAccessor
+<div class='company-content' style="max-width:100%;">
+    <div class='company-page text-break' style="padding-bottom: 0px;">
+        <div class='headers' style="min-height: 120px;padding-top: 40px;">
+            <ul class='nav bg-white pt-1 mt-3' style="border-radius: 3px;">
+                <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                    <a data-controller="utm-tracking" class="nav-link me-3 active" style="border-bottom: solid;-webkit-text-stroke-width: medium;border-color: cornflowerblue;">Quản lí bài đăng</a>
+                </li>
+            </ul>
+        </div>
+        @using (Html.BeginForm("PostSumitted", "Company", FormMethod.Post))
+        {
+            <div class='company-page__container' style="grid-template-columns: 600px 1fr;">
+                <div class='company-page__left mt-1' style="overflow: hidden;position: sticky;height: calc(100vh - 60px); top:60px;">
+                    <div class='panel panel-default jobs' style="overflow: scroll;height: 100%;">
+                        <div class='panel-heading'>
+                            <h2 class='panel-title'>Có @Model.ListPosts.Count() bài đăng.</h2>
+                        </div>
+                        <div class='panel-body' id="myTable" style="padding-top: 0px;">
+                            @{ Model.ListPosts.Reverse(); string str = "";
+                                foreach (var post in Model.ListPosts)
+                                {
+                                    <div class="job" id="job">
+                                        @if (post.Id == Model.SelectedPostId) str = "darkturquoise";
+                                        else str = "white";
+                                        <div class='job_content' style="background-color: @str;padding: 7px 0px;border-radius:10px;">
+                                            <div class='logo'>
+                                                <div class='logo-wrapper job-details-link-wrapper'>
+                                                    <a target="_blank" asp-controller="Company" asp-action="Index" asp-route-id="@post.CompanyId">
+                                                        <picture>
+                                                            <img alt="@post.Company.IdNavigation.AvtLocation" src="~/images/companies/@post.Company.IdNavigation.AvtLocation" width="65">
+                                                        </picture>
+                                                    </a>
+                                                </div>
+                                                <div class='clearfix'></div>
+                                            </div>
+                                            <div class='job__description'>
+                                                <div class='job__body'>
+                                                    <div class='details'>
+                                                        <h3 class='title job-details-link-wrapper'>
+                                                            <a target="_self" asp-controller="Company" asp-action="Post" asp-route-id="@post.Id" id="jobTitle">@post.Title</a>
+                                                        </h3>
+                                                        <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                                            <i class="fa fa-money-check-dollar"></i>
+                                                            @if ((bool)post.IsDollar && post.MaxSalary != 0)
+                                                            {
+                                                                <div class='svg-icon__text'>$@post.MinSalary-@post.MaxSalary</div>
+                                                            }
+                                                            else if (!(bool)post.IsDollar && post.MaxSalary != 0)
+                                                            {
+                                                                <div class='svg-icon__text'>@post.MinSalary-@post.MaxSalary VNĐ</div>
+                                                            }
+                                                            else if (post.MaxSalary == 0)
+                                                            {
+                                                                <div class='svg-icon__text'>Mức lương hấp dẫn</div>
+                                                            }
+                                                            }
+                                                        </div>
+                                                        <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                                            <i class="fa fa-location"></i>
+                                                            @{str = "| ";
+                                                                foreach (var item in Model.ListAllSkills)
+                                                                {
+                                                                    if (post.Skillposts.Where(x => x.SkillId == item.Id).Select(x => x).Count() > 0) { str += item.SkillName + " | "; }
+
+                                                                }
+                                                                <div class='svg-icon__text'>@str</div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class='city_and_posted_date d-none d-sm-flex'>
+                                                <div class='city'>
+                                                    <div class='address'>
+                                                        @{ str = "| ";
+                                                            foreach (var item in Model.ListAllCities)
+                                                            {
+                                                                if (post.CityPosts.Where(x => x.CityId == item.Id).Select(x => x).Count() > 0) { str += item.CityName + " | "; }
+
+                                                            }
+                                                            <div class='text'>@str</div>
+                                                        }
+
+                                                    </div>
+                                                </div>
+                                                <div class='distance-time-job-posted'>
+
+                                                    @{
+                                                        TimeSpan ts = DateTime.Now - post.Createdate;
+                                                        int Total = (int)ts.TotalMinutes;
+                                                        str = "";
+                                                        if (Total > 2592000)
+                                                        {
+                                                            <span class='distance-time highlight'>
+                                                                @post.Createdate.ToString("HH:mm tt dd/MM/yyyy")
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            int d = Total / 1440; Total %= 1440;
+                                                            int h = Total / 60; Total %= 60;
+                                                            int m = Total;
+                                                            if (d > 0) str += d + "d trước";
+                                                            else if (h > 0) str += h + "h trước";
+                                                            else str += m + "p trước";
+                                                            <span class='distance-time highlight'>
+                                                                @str
+                                                            </span>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+
+                                            <div class="form-group" style="margin-bottom:0px;width:5%;">
+                                                <input type="submit" name="submit" class="btn btn-primary" style="width: 100%;float: left;padding-left: 1px;text-align: center;" asp-controller="Company" asp-action="PostSubmitted" asp-route-id="@post.Id" value="+@post.PostSubmits.Count().ToString()" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                        </div>
+                    </div>
+                </div>
+
+                @foreach (var post in Model.ListPosts)
+                {
+                    if (post.Id == Model.SelectedPostId)
+                    {
+                        <div class='company-page__right mt-1'>
+                            <div class='panel panel-default jobs' style="overflow: scroll;height: 100%;">
+                                <div class='panel-heading'>
+                                    <h2 class='panel-title'>Có @post.PostSubmits.Count() lượt ứng tuyển.</h2>
+                                </div>
+                                <div class="accordion" id="myaccordion">
+                                    <div class='panel-body' id="myTable" style="padding-top: 0px;">
+                                        @{ post.PostSubmits.Reverse();
+                                            foreach (var PostSubmit in post.PostSubmits)
+                                            {
+                                                <div class="card"> 
+                                                    @{string temp = "a" + @PostSubmit.Id.ToString();
+                                                    }
+                                                    <div class="card-header btn" data-toggle="collapse" data-target="#@temp" data-parent="#myaccordion" style="background-color: cornflowerblue;">
+                                                        <div class="job" id="job">
+                                                            <div class='job_content' style="background-color: white;padding: 7px 0px;border-radius:10px;">
+                                                                <div class='logo'>
+                                                                    <div class='logo-wrapper job-details-link-wrapper'>
+                                                                        <a target="_blank">
+                                                                            <picture>
+                                                                                <img alt="@PostSubmit.PostNavigation.IdNavigation.AvtLocation" src="~/images/students/@PostSubmit.PostNavigation.IdNavigation.AvtLocation" width="65" style="border-radius: 50px;">
+                                                                            </picture>
+                                                                        </a>
+                                                                    </div>
+                                                                    <div class='clearfix'></div>
+                                                                </div>
+                                                                <div class='job__description'>
+                                                                    <div class='job__body'>
+                                                                        <div class='details'>
+                                                                            <h3 class='title job-details-link-wrapper'>
+                                                                                <a target="_self" asp-controller="Company" asp-action="DetailPostSubmit" asp-route-id="@PostSubmit.Id" id="jobTitle">@PostSubmit.PostNavigation.IdNavigation.SubName @PostSubmit.PostNavigation.IdNavigation.GivenName</a>
+                                                                            </h3>
+                                                                            <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                                                                <i class="fa fa-building"></i>
+                                                                                Khoa: @PostSubmit.PostNavigation.FacultyNavigation.FacultyName
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                                <div class='city_and_posted_date d-none d-sm-flex'>
+                                                                    <div class='city'>
+                                                                        <div class='address'>
+                                                                            <div class='text'>@PostSubmit.PostNavigation.CityNavigation.CityName</div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class='distance-time-job-posted'>
+
+                                                                        @{
+                                                                            TimeSpan ts = DateTime.Now - PostSubmit.Createdate;
+                                                                            int Total = (int)ts.TotalMinutes;
+                                                                            str = "";
+                                                                            if (Total > 2592000)
+                                                                            {
+                                                                                <span class='distance-time highlight'>
+                                                                                    @PostSubmit.Createdate.ToString("HH:mm tt dd/MM/yyyy")
+                                                                                </span>
+                                                                            }
+                                                                            else
+                                                                            {
+                                                                                int d = Total / 1440; Total %= 1440;
+                                                                                int h = Total / 60; Total %= 60;
+                                                                                int m = Total;
+                                                                                if (d > 0) str += d + "d trước";
+                                                                                else if (h > 0) str += h + "h trước";
+                                                                                else str += m + "p trước";
+                                                                                <span class='distance-time highlight'>
+                                                                                    @str
+                                                                                </span>
+                                                                            }
+                                                                        }
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body collapse" data-toggle="collapse" aria-expanded="false" id="@temp">
+                                                        <h5 class="card-title">Tóm tắt cá nhân</h5>
+                                                        <p class="card-text">@PostSubmit.ShortText</p>
+                                                        <h6 class="card-subtitle mb-1 text-muted" ><a target="_blank" href="/CVPath/@PostSubmit.StudentCvpath">Xem</a> CV</h6>
+                                                    </div>
+                                                </div>
+                                            }
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>

@@ -1,0 +1,160 @@
+﻿@model PBL3.Models.Company.HomePageModel
+@inject IHttpContextAccessor _httpContextAccessor
+@{
+    int CurrentPostID = ViewBag.CurrentPostID;
+}
+<div class='jd-page'>
+    @foreach (var post in Model.ListPosts)
+    {
+        if (post.Id == CurrentPostID)
+        {
+            <div class='jd-page__job-details'>
+                <div class='job-details' style="min-height:500px;">
+                    <div class='job-details__header'>
+                        @{
+                            int? UserID = _httpContextAccessor.HttpContext.Session.GetInt32(CommonConstraints.USER_ID);
+                            int? RoleID = _httpContextAccessor.HttpContext.Session.GetInt32(CommonConstraints.USER_ROLEID);
+                            if (RoleID == 1 || (RoleID == 2 && UserID == post.CompanyId)|| RoleID == 4)
+                            {
+                                <nav class="post-more" style="float: right;">
+                                    <a asp-action="EditPost" asp-route-id="@post.Id" class="login-window button">
+                                        <i class='fa-solid fa-edit icon'></i>
+                                    </a>
+                                    <a id="delete-account" class="login-window button">
+                                        <i class='fa-solid fa-delete-left icon'></i>
+                                    </a>
+                                </nav>
+
+                                <dialog id="confirm-delete" class="site-dialog" style="width: 50%;border-radius:10px;">
+                                    <header class="dialog-header">
+                                        <h1>Xác nhận</h1>
+                                    </header>
+                                    <div class="dialog-content">
+                                        <p>Bạn có muốn xóa bài đăng này không?. Thao tác này không thể hoàn tác.</p>
+                                    </div>
+                                    <div class="btn-group cf" style="width:100%">
+                                        <form asp-action="DeletePost" asp-route-id="@post.Id" style="width:50%;">
+                                            <button class="btn btn-danger" style="width:100%;">Xóa</button>
+                                        </form>
+                                        <button class="btn btn-cancel" id="cancel">Hủy</button>
+
+                                    </div>
+                                </dialog>
+                            }
+                            <h1 class='job-details__title' style="height:40px;">@post.Title</h1>
+                            if (UserID != null && RoleID == 3)
+                            {
+                                <div class='job-details__apply'>
+                                    <div class='job-details__apply-box'>
+                                        <a class="job-details__apply-btn button-red btn-block flex-grow-1" asp-controller="Student" asp-action="SubmitPost" asp-route-id="@post.Id">Nộp đơn ngay</a>
+                                    </div>
+                                </div>
+                            }
+                            else if (UserID == null)
+                            {
+                                <div class='job-details__apply'>
+                                    <div class='job-details__apply-box'>
+                                        <a class="job-details__apply-btn button-red btn-block flex-grow-1" asp-controller="Home" asp-action="Login">Nộp đơn ngay</a>
+                                    </div>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <div style="padding:20px">
+                        <div class='job__description'>
+                            @if (post.IsApproved && (RoleID == 1 || RoleID == 2))
+                            {
+                                <div class='feature new text' style="color: white;">
+                                    <span style="background-color: orange; width: 140px; border-radius: 3px; float: right;">Đã duyệt</span>
+                                </div>
+                            }
+                            else if (RoleID == 1 || RoleID == 2)
+                            {
+                                <div class='feature new text' style="color: white;">
+                                    <span style="background-color: orange; width: 140px; border-radius: 3px; float: right;">Chờ duyệt</span>
+                                </div>
+                            }
+                            <div class='distance-time-job-posted'>
+                                <span class='distance-time highlight' style="float:right;">
+                                    @post.CreateDate.ToString("HH:mm tt dd/MM/yyyy")
+                                </span>
+                            </div>
+                            <div class='job__body'>
+                                <div class='details'>
+                                    <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                        <i class="fa fa-money-check-dollar"></i>
+                                        @{
+                                            if (UserID != null)
+                                            {
+                                                if (post.IsDollar && post.MaxSalary != 0)
+                                                {
+                                                    <div class='svg-icon__text'>$@post.MinSalary-@post.MaxSalary</div>
+                                                }
+                                                else if (!post.IsDollar && post.MaxSalary != 0)
+                                                {
+                                                    <div class='svg-icon__text'>@post.MinSalary-@post.MaxSalary VNĐ</div>
+                                                }
+                                                else if (post.MaxSalary == 0)
+                                                {
+                                                    <div class='svg-icon__text'>Mức lương hấp dẫn</div>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <a asp-controller="Home" asp-action="Login" style="color:#000;">
+                                                    <div class='svg-icon__text'>Đăng nhập để xem mức lương</div>
+                                                </a>
+                                            }
+                                        }
+                                    </div>
+                                    <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                        <i class="fa fa-location"></i>
+                                        @{ string str = "| ";
+                                            foreach (var item in Model.ListSkills)
+                                            {
+                                                if (post.SkillsId.Where(x => x == item.Id).Select(x => x).Count() > 0) { str += item.SkillName + " | "; }
+                                            }
+                                            <div class='svg-icon__text'>@str</div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class='city_and_posted_date d-none d-sm-flex'>
+                            <div class='city'>
+                                <div class='address'>
+                                    @{ str = "| ";
+                                        foreach (var item in Model.ListCities)
+                                        {
+                                            if (post.CitiesId.Where(x => x == item.Id).Select(x => x).Count() > 0) { str += item.CityName + " | "; }
+
+                                        }
+                                        <div class='text'><i class="fa fa-location-dot"></i>   @str</div>
+                                    }
+
+                                </div>
+                            </div>
+                        </div>
+                        <h2 class='job-details__second-title'>Mô tả công việc</h2>
+                        <div class='job-details__paragraph'>
+                            <p>@post.Content</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class='jd-page__employer-overview'>
+                <div class='jd-page__employer-overview-inner'>
+                    <div class='employer-long-overview'>
+                        <div class='headers__logo'>
+                            <div class='headers__logo__img'>
+                                <picture href="Company/@Model.CompanyID">
+                                    <img alt="@Model.CompanyName" src="~/images/companies/@Model.AvtLocation" width="100">
+                                </picture>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>

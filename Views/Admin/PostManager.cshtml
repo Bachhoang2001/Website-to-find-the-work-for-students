@@ -1,0 +1,304 @@
+﻿@model PBL3.Models.Admin.PostManagerModel
+@inject IHttpContextAccessor _httpContextAccessor
+<div class='company-content' style="max-width:100%;">
+    <div class='company-page text-break' style="padding-bottom: 0px;">
+        <div class='headers' style="min-height: 120px;padding-top: 40px;">
+            <ul class='nav bg-white pt-1 mt-3' style="border-radius: 3px;">
+                <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                    <a data-controller="utm-tracking" class="nav-link me-3 active" style="border-bottom: solid;-webkit-text-stroke-width: medium;border-color: cornflowerblue;">Quản lí bài đăng</a>
+                </li>
+                <li class='nav-item m-0 py-0 px-3 p-md-0'>
+                    <a data-controller="utm-tracking" class="nav-link me-3 active" asp-controller="Admin" asp-action="CompanyAccountManager" style="-webkit-text-stroke-width:thin; color:black;">Quản lí tài khoản</a>
+                </li>
+            </ul>
+        </div>
+        @using (Html.BeginForm("PostManager", "Admin", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+            <div class="post-filter" style="background-color: white;padding:10px;display:-webkit-box;">
+                <div style="width: 10%;text-align: center;font-weight: 700;padding: 0px 10px;">
+                    @Html.LabelFor(m => m.CheckIsDeleted)
+                    @Html.CheckBoxFor(m => m.CheckIsDeleted, new { @class = "form-control", style = "font-size:1px;" })
+                </div>
+                <div style="width: 10%;text-align: center;font-weight: 700;padding: 0px 10px;">
+                    @Html.LabelFor(m => m.CheckIsApproved)
+                    @Html.CheckBoxFor(m => m.CheckIsApproved, new { @class = "form-control", style = "font-size:1px;" })
+                </div>
+                <div style="width: 20%;text-align: center;font-weight: 700;padding: 0px 10px;">
+                    @Html.DropDownListFor(m => m.CheckCityId, new SelectList(Model.ListCities, "Id", "CityName"), new { @class = "form-control" })
+                </div>
+                <div style="width: 20%;text-align: center;font-weight: 700;padding: 0px 10px;display:inherit;">
+                    <i class='fa-solid fa-magnifying-glass icon' style="padding-top:10px;position:absolute;padding-left:5px;"></i>
+                    @Html.TextBoxFor(m => m.CheckString, new { @placeholder = "Tìm kiếm ở đây...", @class = "form-control", style= "padding-left: 30px;", type="search" })
+                </div>
+                <div style="width:10%;padding:0px 10px;display: inline-flex;">
+                    <input type="submit" name="submit" class="btn btn-primary" value="    Lọc" style="width:100%;" href="/Admin/PostManager/0" />
+                    <i class="fa fa-filter" style="position:absolute;padding:10px;color:white;"></i>
+                </div>
+            </div>
+
+
+            <div class='company-page__container' style="grid-template-columns: 600px 1fr;">
+                <div class='company-page__left mt-1' style="overflow: hidden;position: sticky;height: calc(100vh - 60px); top:60px;">
+                    <div class='panel panel-default jobs' style="overflow: scroll;height: 100%;">
+                        @{
+                            string str = "( ";
+                            if (Model.CheckIsApproved) str += "đã Duyệt, ";
+                            else str += "chờ Duyệt, ";
+                            if (Model.CheckIsDeleted) str += " đã Xóa)";
+                            else str += " chưa Xóa)";
+                        }
+                        <div class='panel-heading'>
+                            <h2 class='panel-title'>Có @Model.Posts.Count() bài đăng. @str</h2>
+                        </div>
+                        <div class='panel-body' id="myTable" style="padding-top: 0px;">
+                            @{ Model.Posts.Reverse();
+                                foreach (var post in Model.Posts)
+                                {
+                                    <div class="job" id="job">
+                                        @if (post.Id == Model.SelectedPostId) str = "darkturquoise";
+                                        else str = "white";
+                                        <div class='job_content' style="background-color: @str;padding: 7px 0px;border-radius:10px;">
+                                            <div class='logo'>
+                                                <div class='logo-wrapper job-details-link-wrapper'>
+                                                    <a target="_blank" asp-controller="Company" asp-action="Index" asp-route-id="@post.CompanyId">
+                                                        <picture>
+                                                            <img alt="@post.CompanyAvtPath" src="~/images/companies/@post.CompanyAvtPath" width="65">
+                                                        </picture>
+                                                    </a>
+                                                </div>
+                                                <div class='clearfix'></div>
+                                            </div>
+                                            <div class='job__description'>
+                                                <div class='job__body'>
+                                                    <div class='details'>
+                                                        <h3 class='title job-details-link-wrapper'>
+                                                            <a target="_self" asp-controller="Company" asp-action="Post" asp-route-id="@post.Id" id="jobTitle">@post.Title</a>
+                                                        </h3>
+                                                        <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                                            <i class="fa fa-money-check-dollar"></i>
+                                                            @if (_httpContextAccessor.HttpContext.Session.GetInt32(CommonConstraints.USER_ROLEID) != null)
+                                                            {
+                                                                if (post.IsDollar && post.MaxSalary != 0)
+                                                                {
+                                                                    <div class='svg-icon__text'>$@post.MinSalary-@post.MaxSalary</div>
+                                                                }
+                                                                else if (!post.IsDollar && post.MaxSalary != 0)
+                                                                {
+                                                                    <div class='svg-icon__text'>@post.MinSalary-@post.MaxSalary VNĐ</div>
+                                                                }
+                                                                else if (post.MaxSalary == 0)
+                                                                {
+                                                                    <div class='svg-icon__text'>Mức lương hấp dẫn</div>
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                <a asp-controller="Home" asp-action="Login" style="color:#000;">
+                                                                    <div class='svg-icon__text'>Đăng nhập để xem mức lương</div>
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                        <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                                            <i class="fa fa-location"></i>
+                                                            @{str = "| ";
+                                                                foreach (var item in Model.ListSkills)
+                                                                {
+                                                                    if (post.SkillsId.Where(x => x == item.Id).Select(x => x).Count() > 0) { str += item.SkillName + " | "; }
+
+                                                                }
+                                                                <div class='svg-icon__text'>@str</div>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class='city_and_posted_date d-none d-sm-flex'>
+                                                @if (post.IsApproved)
+                                                {
+                                                    <div class='feature new text' style="
+    color: white;">Đã duyệt</div>
+                                                }
+                                                else
+                                                {
+                                                    <div class='feature new text' style="
+    color: white;">Chờ phê duyệt</div>
+                                                }
+
+                                                <div class='city'>
+                                                    <div class='address'>
+                                                        @{ str = "| ";
+                                                            foreach (var item in Model.ListCities)
+                                                            {
+                                                                if (post.CitiesId.Where(x => x == item.Id).Select(x => x).Count() > 0) { str += item.CityName + " | "; }
+
+                                                            }
+                                                            <div class='text'>@str</div>
+                                                        }
+
+                                                    </div>
+                                                </div>
+                                                <div class='distance-time-job-posted'>
+
+                                                    @{
+                                                        TimeSpan ts = DateTime.Now - post.CreateDate;
+                                                        int Total = (int)ts.TotalMinutes;
+                                                        str = "";
+                                                        if (Total > 2592000)
+                                                        {
+                                                            <span class='distance-time highlight'>
+                                                                @post.CreateDate.ToString("HH:mm tt dd/MM/yyyy")
+                                                            </span>
+                                                        }
+                                                        else
+                                                        {
+                                                            int d = Total / 1440; Total %= 1440;
+                                                            int h = Total / 60; Total %= 60;
+                                                            int m = Total;
+                                                            if (d > 0) str += d + "d trước";
+                                                            else if (h > 0) str += h + "h trước";
+                                                            else str += m + "p trước";
+                                                            <span class='distance-time highlight'>
+                                                                @str
+                                                            </span>
+                                                        }
+                                                    }
+                                                </div>
+                                            </div>
+                                            <div class="form-group" style="margin-bottom:0px;width:5%;">
+                                                <input type="submit" name="submit" class="btn btn-primary" style="width: 100%;float: left;padding-left: 1px;text-align: center;" asp-controller="Admin" asp-action="PostManager" asp-route-id="@post.Id" value="➤" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            }
+
+                        </div>
+                    </div>
+                </div>
+
+                @foreach (var post in Model.Posts)
+                {
+                    if (post.Id == Model.SelectedPostId)
+                    {
+                        <div class='company-page__right mt-1'>
+                            <div class='job-details' style="background-color: white;padding: 0 10px;">
+                                <div class='job-details__header'>
+                                    <nav class="post-more" style="float: right;">
+                                        <a target="_blank" asp-controller="Company" asp-action="EditPost" asp-route-id="@post.Id" class="login-window button">
+                                            <i class='fa-solid fa-edit icon'></i>
+                                        </a>
+                                        <a id="delete-account" class="login-window button">
+                                            <i class='fa-solid fa-delete-left icon'></i>
+                                        </a>
+                                    </nav>
+
+                                    <dialog id="confirm-delete" class="site-dialog" style="width: 50%;border-radius:10px;">
+                                        <header class="dialog-header">
+                                            <h1>Xác nhận</h1>
+                                        </header>
+                                        <div class="dialog-content">
+                                            <p>Bạn có muốn xóa bài đăng này không?. Thao tác này không thể hoàn tác.</p>
+                                        </div>
+                                        <div class="btn-group cf" style="width:100%">
+                                            <form asp-action="DeletePost" asp-route-id="@post.Id" style="width:50%;">
+                                                <button class="btn btn-danger">Xóa</button>
+                                            </form>
+                                            <button class="btn btn-cancel" id="cancel">Hủy</button>
+
+                                        </div>
+                                    </dialog>
+                                    <h1 class='job-details__title'>@post.Title</h1>
+                                    <div class='job-details__apply'>
+                                        @if (post.IsApproved)
+                                        {
+                                            @*<div class='job-details__apply-box'>
+                                                    <a class="job-details__apply-btn button btn-block flex-grow-1" asp-controller="Admin" asp-action="CancelPostApproval" asp-route-id="@post.Id">Hủy duyệt bài</a>
+                                                </div>*@
+                                            <div class="form-group" style="margin-bottom:0px;width:50%;">
+                                                <input type="submit" name="submit" class="btn btn-primary" style="width: 100%;position: absolute;margin-top: -10px;padding-left: 1px;text-align: center;" asp-controller="Admin" asp-action="CancelPostApproval" asp-route-id="@post.Id" value="Hủy duyệt bài" />
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="form-group" style="margin-bottom:0px;width:50%;">
+                                                <input type="submit" name="submit" class="btn btn-primary" style="width: 100%;position: absolute;margin-top: -10px;padding-left: 1px;text-align: center;" asp-controller="Admin" asp-action="PostApproval" asp-route-id="@post.Id" value="Duyệt bài" />
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
+                                @if (post.IsApproved)
+                                {
+                                    <div class='feature new text' style="color: white;background-color:orange;width: 140px;border-radius: 3px;float: right;">Đã duyệt</div>
+                                }
+                                else
+                                {
+                                    <div class='feature new text' style="color: white;background-color:orange;width: 140px;border-radius: 3px;float: right;">Chờ duyệt</div>
+                                }
+                                <div style="padding:20px">
+                                    <div class='job__description'>
+                                        <div class='job__body'>
+                                            <div class='details'>
+                                                <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                                    <i class="fa fa-money-check-dollar"></i>
+                                                    @if (post.IsDollar && post.MaxSalary != 0)
+                                                    {
+                                                        <div class='svg-icon__text'>@String.Format("{0:C0}",post.MinSalary)-@String.Format("{0:C0}", post.MaxSalary)</div>
+                                                    }
+                                                    else if (!post.IsDollar && post.MaxSalary != 0)
+                                                    {
+                                                <div class='svg-icon__text'>@String.Format("{0:N0}", post.MinSalary)-@String.Format("{0:N0}", post.MaxSalary) VNĐ</div>
+                                                    }
+                                                    else if (post.MaxSalary == 0)
+                                                    {
+                                                        <div class='svg-icon__text'>Mức lương hấp dẫn</div>
+                                                    }
+                                                </div>
+                                                <div class='svg-icon svg-icon--grey headers__info__item-location'>
+                                                    <i class="fa fa-location"></i>
+                                                    @{ str = "| ";
+                                                        foreach (var item in Model.ListSkills)
+                                                        {
+                                                            if (post.SkillsId.Where(x => x == item.Id).Select(x => x).Count() > 0) { str += item.SkillName + " | "; }
+                                                        }
+                                                        <div class='svg-icon__text'>@str</div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class='city_and_posted_date d-none d-sm-flex'>
+                                        <div class='city'>
+                                            <div class='address'>
+                                                @{ str = "| ";
+                                                    foreach (var item in Model.ListCities)
+                                                    {
+                                                        if (post.CitiesId.Where(x => x == item.Id).Select(x => x).Count() > 0) { str += item.CityName + " | "; }
+
+                                                    }
+                                                    <div class='text'>@str</div>
+                                                }
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class='distance-time-job-posted'>
+                                        <span class='distance-time highlight'>
+                                            Được tạo lúc: @post.CreateDate.ToString("HH:mm tt dd/MM/yyyy")
+                                            <br />Lần cập nhật gần nhất: @post.UpdateDate.ToString("HH:mm tt dd/MM/yyyy")
+                                        </span>
+                                    </div>
+                                    <h2 class='job-details__second-title'>Mô tả công việc</h2>
+                                    <div class='job-details__paragraph'>
+                                        <p>@post.Content</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+</div>
